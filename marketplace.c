@@ -54,7 +54,7 @@ MarketNode* removeFromMarketplace(Marketplace* market, const char* name) {
     int i;
 
     for (i = 0; i < market->count; i++) {
-        if (strcmp(current->name, name) == 0) {
+        if (strcasecmp(current->name, name) == 0) {
             if (market->count == 1) {
                 /* Only node */
                 market->head = NULL;
@@ -86,7 +86,7 @@ MarketNode* searchMarketByName(Marketplace* market, const char* name) {
     int i;
 
     for (i = 0; i < market->count; i++) {
-        if (strcmp(current->name, name) == 0) {
+        if (strcasecmp(current->name, name) == 0) {
             return current;
         }
         current = current->next;
@@ -112,7 +112,7 @@ void searchMarketByType(Marketplace* market, const char* type) {
            "--------", "----------");
 
     for (i = 0; i < market->count; i++) {
-        if (strcmp(current->type, type) == 0) {
+        if (strcasecmp(current->type, type) == 0) {
             printf("%-25s %-5s %-7d %-8d %-10d\n",
                    current->name, current->type,
                    current->rating, current->price, current->seller_id);

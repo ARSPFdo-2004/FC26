@@ -48,7 +48,7 @@ InventoryNode* removePlayerByName(PlayerInventory* inv, const char* name) {
     InventoryNode* current = inv->head;
 
     while (current != NULL) {
-        if (strcmp(current->name, name) == 0) {
+        if (strcasecmp(current->name, name) == 0) {
             if (current->prev != NULL) {
                 current->prev->next = current->next;
             } else {
@@ -76,7 +76,7 @@ InventoryNode* removePlayerByName(PlayerInventory* inv, const char* name) {
 InventoryNode* searchInventoryByName(PlayerInventory* inv, const char* name) {
     InventoryNode* current = inv->head;
     while (current != NULL) {
-        if (strcmp(current->name, name) == 0) {
+        if (strcasecmp(current->name, name) == 0) {
             return current;
         }
         current = current->next;
@@ -94,7 +94,7 @@ void searchInventoryByType(PlayerInventory* inv, const char* type) {
            "-------------------------", "-----", "-------", "--------");
 
     while (current != NULL) {
-        if (strcmp(current->type, type) == 0) {
+        if (strcasecmp(current->type, type) == 0) {
             printf("%-25s %-5s %-7d %-8d\n",
                    current->name, current->type,
                    current->rating, current->price);
