@@ -638,6 +638,7 @@ int main(void) {
             free(current->match_history);
         }
         free(current->squad);
+        free(current);
         current = next;
     }
     freeMarketplace(&g_market);

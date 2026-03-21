@@ -9,11 +9,7 @@ void initMatchQueue(MatchQueue* queue) {
 
 /* IS_QUEUE_EMPTY(queue : REFERENCE TO MatchQueue) RETURNS BOOLEAN */
 bool isQueueEmpty(MatchQueue* queue) {
-    if (queue->front == NULL) {
-        return true;
-    } else {
-        return false;
-    }
+    return queue->front == NULL;
 }
 
 /* ENQUEUE_USER(queue : REFERENCE TO MatchQueue, user_id, user_level : INTEGER) */

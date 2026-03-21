@@ -14,11 +14,7 @@ void initMatchStack(MatchStack* stack) {
 
 /* IS_STACK_EMPTY(stack : REFERENCE TO MatchStack) RETURNS BOOLEAN */
 bool isStackEmpty(MatchStack* stack) {
-    if (stack->top == NULL) {
-        return true;
-    } else {
-        return false;
-    }
+    return stack->top == NULL;
 }
 
 /* PUSH_MATCH(stack : REFERENCE TO MatchStack, opponent : STRING,
