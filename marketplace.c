@@ -1,13 +1,10 @@
 #include "marketplace.h"
 
-/* INIT_MARKETPLACE(market : REFERENCE TO Marketplace) */
 void initMarketplace(Marketplace* market) {
     market->head  = NULL;
     market->count = 0;
 }
 
-/* ADD_TO_MARKETPLACE(market : REFERENCE TO Marketplace,
-                      name, type : STRING, rating, price, seller_id : INTEGER) */
 void addToMarketplace(Marketplace* market, const char* name, const char* type,
                       int rating, int price, int seller_id) {
     MarketNode* node = (MarketNode*)malloc(sizeof(MarketNode));
@@ -27,12 +24,12 @@ void addToMarketplace(Marketplace* market, const char* name, const char* type,
     node->prev      = NULL;
 
     if (market->head == NULL) {
-        /* Single node: points to itself (circular) */
+        
         market->head = node;
         node->next   = node;
         node->prev   = node;
     } else {
-        /* Insert before head (at tail position) */
+        
         MarketNode* tail = market->head->prev;
         tail->next       = node;
         node->prev       = tail;
@@ -43,8 +40,6 @@ void addToMarketplace(Marketplace* market, const char* name, const char* type,
     market->count++;
 }
 
-/* REMOVE_FROM_MARKETPLACE(market : REFERENCE TO Marketplace, name : STRING)
-   RETURNS POINTER TO MarketNode (caller must free) */
 MarketNode* removeFromMarketplace(Marketplace* market, const char* name) {
     if (market->head == NULL) {
         return NULL;
@@ -56,7 +51,7 @@ MarketNode* removeFromMarketplace(Marketplace* market, const char* name) {
     for (i = 0; i < market->count; i++) {
         if (strcasecmp(current->name, name) == 0) {
             if (market->count == 1) {
-                /* Only node */
+                
                 market->head = NULL;
             } else {
                 current->prev->next = current->next;
@@ -75,8 +70,6 @@ MarketNode* removeFromMarketplace(Marketplace* market, const char* name) {
     return NULL;
 }
 
-/* SEARCH_MARKET_BY_NAME(market : REFERENCE TO Marketplace, name : STRING)
-   RETURNS POINTER TO MarketNode */
 MarketNode* searchMarketByName(Marketplace* market, const char* name) {
     if (market->head == NULL) {
         return NULL;
@@ -94,7 +87,6 @@ MarketNode* searchMarketByName(Marketplace* market, const char* name) {
     return NULL;
 }
 
-/* SEARCH_MARKET_BY_TYPE(market : REFERENCE TO Marketplace, type : STRING) */
 void searchMarketByType(Marketplace* market, const char* type) {
     if (market->head == NULL) {
         printf("Marketplace is empty.\n");
@@ -127,7 +119,6 @@ void searchMarketByType(Marketplace* market, const char* type) {
     printf("\n");
 }
 
-/* DISPLAY_MARKETPLACE(market : REFERENCE TO Marketplace) */
 void displayMarketplace(Marketplace* market) {
     if (market->head == NULL) {
         printf("Marketplace is empty.\n");
@@ -151,10 +142,8 @@ void displayMarketplace(Marketplace* market) {
     printf("\nTotal listings: %d\n\n", market->count);
 }
 
-/* SEED_MARKETPLACE(market : REFERENCE TO Marketplace)
-   Pre-populates the marketplace with well-known players (seller_id = 0). */
 void seedMarketplace(Marketplace* market) {
-    /* seller_id = 0 means system listing (no real user has id 0) */
+    
     addToMarketplace(market, "Ronaldo",       "FW", 94, 5000, 0);
     addToMarketplace(market, "Messi",         "FW", 95, 5500, 0);
     addToMarketplace(market, "Mbappe",        "FW", 93, 4800, 0);
@@ -178,13 +167,11 @@ void seedMarketplace(Marketplace* market) {
     addToMarketplace(market, "Raphinha",      "MF", 87, 3000, 0);
 }
 
-/* FREE_MARKETPLACE(market : REFERENCE TO Marketplace) */
 void freeMarketplace(Marketplace* market) {
     if (market->head == NULL) {
         return;
     }
 
-    /* Break circular link */
     market->head->prev->next = NULL;
 
     MarketNode* current = market->head;

@@ -1,6 +1,5 @@
 #include "user_registration.h"
 
-/* Level names array */
 static const char* LEVEL_NAMES[] = {
     "Amateur 3", "Amateur 2", "Amateur 1",
     "Pro 3",     "Pro 2",     "Pro 1",
@@ -8,29 +7,24 @@ static const char* LEVEL_NAMES[] = {
     "Legendary"
 };
 
-/* Weekly rewards (minimum 30000 coin difference between each level) */
 static const int WEEKLY_REWARDS[] = {
     10000, 40000, 70000,
     100000, 130000, 160000,
     190000, 220000, 250000
 };
 
-/* INITIALIZE_REGISTRY(registry : REFERENCE TO UserRegistry) */
 void initRegistry(UserRegistry* registry) {
     registry->head = NULL;
     registry->tail = NULL;
     registry->user_count = 0;
 }
 
-/* NEW_ID_PROVIDER(registry : REFERENCE TO UserRegistry) RETURNS INTEGER */
 int newIDProvider(UserRegistry* registry) {
     return registry->user_count + 1;
 }
 
-/* ADD_USER(registry : REFERENCE TO UserRegistry, name : STRING)
-   RETURNS POINTER TO UserNode */
 UserNode* addUser(UserRegistry* registry, const char* name) {
-    /* Check for duplicate name */
+    
     UserNode* check = registry->head;
     while (check != NULL) {
         if (strcasecmp(check->name, name) == 0) {
@@ -49,8 +43,8 @@ UserNode* addUser(UserRegistry* registry, const char* name) {
     strncpy(newNode->name, name, MAX_NAME_LEN - 1);
     newNode->name[MAX_NAME_LEN - 1] = '\0';
     newNode->id           = newIDProvider(registry);
-    newNode->level        = 0;    /* Start at Amateur 3 */
-    newNode->coins        = 5000; /* Starting coins */
+    newNode->level        = 0;    
+    newNode->coins        = 5000; 
     newNode->total_wins   = 0;
     newNode->total_losses = 0;
     newNode->total_draws  = 0;
@@ -75,7 +69,6 @@ UserNode* addUser(UserRegistry* registry, const char* name) {
     return newNode;
 }
 
-/* DELETE_ACCOUNT(registry : REFERENCE TO UserRegistry, node : POINTER TO UserNode) */
 void deleteAccount(UserRegistry* registry, UserNode* node) {
     if (node == NULL) {
         return;
@@ -97,7 +90,6 @@ void deleteAccount(UserRegistry* registry, UserNode* node) {
     free(node);
 }
 
-/* TRAVERSE_USERS(registry : REFERENCE TO UserRegistry) */
 void traverseUsers(UserRegistry* registry) {
     if (registry->head == NULL) {
         printf("No users registered.\n");
@@ -125,8 +117,6 @@ void traverseUsers(UserRegistry* registry) {
     printf("\n");
 }
 
-/* FIND_USER_BY_ID(registry : REFERENCE TO UserRegistry, id : INTEGER)
-   RETURNS POINTER TO UserNode */
 UserNode* findUserByID(UserRegistry* registry, int id) {
     UserNode* current = registry->head;
     while (current != NULL) {
@@ -138,8 +128,6 @@ UserNode* findUserByID(UserRegistry* registry, int id) {
     return NULL;
 }
 
-/* FIND_USER_BY_NAME(registry : REFERENCE TO UserRegistry, name : STRING)
-   RETURNS POINTER TO UserNode */
 UserNode* findUserByName(UserRegistry* registry, const char* name) {
     UserNode* current = registry->head;
     while (current != NULL) {
@@ -151,7 +139,6 @@ UserNode* findUserByName(UserRegistry* registry, const char* name) {
     return NULL;
 }
 
-/* GET_LEVEL_NAME(level : INTEGER) RETURNS STRING */
 const char* getLevelName(int level) {
     if (level < 0 || level > 8) {
         return "Unknown";
@@ -159,7 +146,6 @@ const char* getLevelName(int level) {
     return LEVEL_NAMES[level];
 }
 
-/* UPDATE_USER_LEVEL(user : POINTER TO UserNode) */
 void updateUserLevel(UserNode* user) {
     int wins = user->total_wins;
     int new_level;
@@ -181,7 +167,6 @@ void updateUserLevel(UserNode* user) {
     }
 }
 
-/* GET_WEEKLY_REWARD(level : INTEGER) RETURNS INTEGER */
 int getWeeklyReward(int level) {
     if (level < 0 || level > 8) {
         return 0;
