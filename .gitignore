@@ -1,2 +1,4 @@
 football
 *.o
+a.out
+football_game_bin
