@@ -12,31 +12,22 @@
 #include "leaderboard.h"
 #include "matchhistory.h"
 
-/* ======================================================
- * Global state
- * ====================================================== */
 static UserRegistry  g_registry;
 static Marketplace   g_market;
 static Leaderboard   g_leaderboard;
 static MatchQueue    g_matchQueue;
 static int           g_current_week = 1;
 
-/* ======================================================
- * Helper utilities
- * ====================================================== */
-
-/* Clear input buffer */
 static void clearInput(void) {
     int c;
     while ((c = getchar()) != '\n' && c != EOF) {
-        /* discard */
+        
     }
 }
 
-/* Read a line safely */
 static void readLine(char* buf, int size) {
     if (fgets(buf, size, stdin) != NULL) {
-        /* Strip trailing newline */
+        
         int len = (int)strlen(buf);
         if (len > 0 && buf[len - 1] == '\n') {
             buf[len - 1] = '\0';
@@ -44,30 +35,22 @@ static void readLine(char* buf, int size) {
     }
 }
 
-/* ======================================================
- * Initialize a new user's inventory, squad, match history
- * ====================================================== */
 static void initUserModules(UserNode* user) {
-    /* Inventory */
+    
     user->inventory = (PlayerInventory*)malloc(sizeof(PlayerInventory));
     if (user->inventory == NULL) { printf("Memory error\n"); exit(1); }
     initInventory(user->inventory);
     giveInitialPlayers(user->inventory, user->id);
 
-    /* Squad */
     user->squad = (Squad*)malloc(sizeof(Squad));
     if (user->squad == NULL) { printf("Memory error\n"); exit(1); }
     initSquad(user->squad);
 
-    /* Match history */
     user->match_history = (MatchStack*)malloc(sizeof(MatchStack));
     if (user->match_history == NULL) { printf("Memory error\n"); exit(1); }
     initMatchStack(user->match_history);
 }
 
-/* ======================================================
- * Helper: push a match record and keep UserNode totals in sync
- * ====================================================== */
 static void addMatchRecord(UserNode* user, const char* opponent,
                            char result, int coins, int week) {
     pushMatch(user->match_history, opponent, result, coins, week);
@@ -77,10 +60,6 @@ static void addMatchRecord(UserNode* user, const char* opponent,
     user->coins += coins;
 }
 
-/* ======================================================
- * Seed 5 predefined users with usernames, match history,
- * and leaderboard entries
- * ====================================================== */
 static void seedPredefinedUsers(void) {
     static const char* names[5] = {
         "AlphaStrike", "BetaForce", "GammaKnight", "DeltaBlitz", "EpsilonStar"
@@ -88,7 +67,6 @@ static void seedPredefinedUsers(void) {
     UserNode* u[5];
     int i;
 
-    /* Create users */
     for (i = 0; i < 5; i++) {
         u[i] = addUser(&g_registry, names[i]);
         if (u[i] == NULL) {
@@ -98,143 +76,122 @@ static void seedPredefinedUsers(void) {
         initUserModules(u[i]);
     }
 
-    /* --------------------------------------------------
-     * AlphaStrike — 15W  3L  2D  (20 matches, 5 weeks)
-     * -------------------------------------------------- */
-    /* Week 1 */
     addMatchRecord(u[0], "BetaForce",   RESULT_WIN,  500, 1);
     addMatchRecord(u[0], "GammaKnight", RESULT_WIN,  500, 1);
     addMatchRecord(u[0], "EpsilonStar", RESULT_WIN,  500, 1);
     addMatchRecord(u[0], "DeltaBlitz",  RESULT_DRAW, 250, 1);
     resetWeeklyStats(u[0]->match_history);
-    /* Week 2 */
+    
     addMatchRecord(u[0], "BotPlayer1",  RESULT_WIN,  500, 2);
     addMatchRecord(u[0], "GammaKnight", RESULT_WIN,  500, 2);
     addMatchRecord(u[0], "BetaForce",   RESULT_LOSS, 0,   2);
     addMatchRecord(u[0], "BotPlayer2",  RESULT_WIN,  500, 2);
     resetWeeklyStats(u[0]->match_history);
-    /* Week 3 */
+    
     addMatchRecord(u[0], "DeltaBlitz",  RESULT_WIN,  500, 3);
     addMatchRecord(u[0], "EpsilonStar", RESULT_WIN,  500, 3);
     addMatchRecord(u[0], "BotPlayer3",  RESULT_WIN,  500, 3);
     addMatchRecord(u[0], "GammaKnight", RESULT_DRAW, 250, 3);
     resetWeeklyStats(u[0]->match_history);
-    /* Week 4 */
+    
     addMatchRecord(u[0], "BetaForce",   RESULT_WIN,  500, 4);
     addMatchRecord(u[0], "BotPlayer1",  RESULT_LOSS, 0,   4);
     addMatchRecord(u[0], "DeltaBlitz",  RESULT_WIN,  500, 4);
     addMatchRecord(u[0], "EpsilonStar", RESULT_WIN,  500, 4);
     resetWeeklyStats(u[0]->match_history);
-    /* Week 5 */
+    
     addMatchRecord(u[0], "BotPlayer2",  RESULT_WIN,  500, 5);
     addMatchRecord(u[0], "GammaKnight", RESULT_WIN,  500, 5);
     addMatchRecord(u[0], "BotPlayer3",  RESULT_WIN,  500, 5);
     addMatchRecord(u[0], "BetaForce",   RESULT_LOSS, 0,   5);
 
-    /* --------------------------------------------------
-     * BetaForce — 10W  5L  2D  (17 matches, 5 weeks)
-     * -------------------------------------------------- */
-    /* Week 1 */
     addMatchRecord(u[1], "AlphaStrike", RESULT_LOSS, 0,   1);
     addMatchRecord(u[1], "GammaKnight", RESULT_WIN,  500, 1);
     addMatchRecord(u[1], "DeltaBlitz",  RESULT_WIN,  500, 1);
     addMatchRecord(u[1], "EpsilonStar", RESULT_WIN,  500, 1);
     resetWeeklyStats(u[1]->match_history);
-    /* Week 2 */
+    
     addMatchRecord(u[1], "AlphaStrike", RESULT_WIN,  500, 2);
     addMatchRecord(u[1], "BotPlayer1",  RESULT_DRAW, 250, 2);
     addMatchRecord(u[1], "DeltaBlitz",  RESULT_WIN,  500, 2);
     resetWeeklyStats(u[1]->match_history);
-    /* Week 3 */
+    
     addMatchRecord(u[1], "GammaKnight", RESULT_LOSS, 0,   3);
     addMatchRecord(u[1], "BotPlayer2",  RESULT_WIN,  500, 3);
     addMatchRecord(u[1], "EpsilonStar", RESULT_WIN,  500, 3);
     resetWeeklyStats(u[1]->match_history);
-    /* Week 4 */
+    
     addMatchRecord(u[1], "AlphaStrike", RESULT_LOSS, 0,   4);
     addMatchRecord(u[1], "BotPlayer3",  RESULT_WIN,  500, 4);
     addMatchRecord(u[1], "GammaKnight", RESULT_DRAW, 250, 4);
     resetWeeklyStats(u[1]->match_history);
-    /* Week 5 */
+    
     addMatchRecord(u[1], "DeltaBlitz",  RESULT_WIN,  500, 5);
     addMatchRecord(u[1], "AlphaStrike", RESULT_LOSS, 0,   5);
     addMatchRecord(u[1], "EpsilonStar", RESULT_LOSS, 0,   5);
     addMatchRecord(u[1], "BotPlayer1",  RESULT_WIN,  500, 5);
 
-    /* --------------------------------------------------
-     * GammaKnight — 6W  5L  3D  (14 matches, 5 weeks)
-     * -------------------------------------------------- */
-    /* Week 1 */
     addMatchRecord(u[2], "AlphaStrike", RESULT_LOSS, 0,   1);
     addMatchRecord(u[2], "BetaForce",   RESULT_LOSS, 0,   1);
     addMatchRecord(u[2], "DeltaBlitz",  RESULT_WIN,  500, 1);
     addMatchRecord(u[2], "EpsilonStar", RESULT_WIN,  500, 1);
     resetWeeklyStats(u[2]->match_history);
-    /* Week 2 */
+    
     addMatchRecord(u[2], "AlphaStrike", RESULT_LOSS, 0,   2);
     addMatchRecord(u[2], "BotPlayer1",  RESULT_WIN,  500, 2);
     addMatchRecord(u[2], "DeltaBlitz",  RESULT_WIN,  500, 2);
     resetWeeklyStats(u[2]->match_history);
-    /* Week 3 */
+    
     addMatchRecord(u[2], "BetaForce",   RESULT_WIN,  500, 3);
     addMatchRecord(u[2], "EpsilonStar", RESULT_DRAW, 250, 3);
     addMatchRecord(u[2], "AlphaStrike", RESULT_DRAW, 250, 3);
     resetWeeklyStats(u[2]->match_history);
-    /* Week 4 */
+    
     addMatchRecord(u[2], "BotPlayer2",  RESULT_DRAW, 250, 4);
     addMatchRecord(u[2], "BetaForce",   RESULT_WIN,  500, 4);
     resetWeeklyStats(u[2]->match_history);
-    /* Week 5 */
+    
     addMatchRecord(u[2], "DeltaBlitz",  RESULT_LOSS, 0,   5);
     addMatchRecord(u[2], "BotPlayer3",  RESULT_LOSS, 0,   5);
 
-    /* --------------------------------------------------
-     * DeltaBlitz — 3W  6L  2D  (11 matches, 5 weeks)
-     * -------------------------------------------------- */
-    /* Week 1 */
     addMatchRecord(u[3], "AlphaStrike", RESULT_DRAW, 250, 1);
     addMatchRecord(u[3], "BetaForce",   RESULT_LOSS, 0,   1);
     addMatchRecord(u[3], "GammaKnight", RESULT_LOSS, 0,   1);
     addMatchRecord(u[3], "EpsilonStar", RESULT_WIN,  500, 1);
     resetWeeklyStats(u[3]->match_history);
-    /* Week 2 */
+    
     addMatchRecord(u[3], "BetaForce",   RESULT_LOSS, 0,   2);
     addMatchRecord(u[3], "GammaKnight", RESULT_LOSS, 0,   2);
     addMatchRecord(u[3], "BotPlayer1",  RESULT_WIN,  500, 2);
     resetWeeklyStats(u[3]->match_history);
-    /* Week 3 */
+    
     addMatchRecord(u[3], "AlphaStrike", RESULT_LOSS, 0,   3);
     resetWeeklyStats(u[3]->match_history);
-    /* Week 4 */
+    
     addMatchRecord(u[3], "BotPlayer2",  RESULT_WIN,  500, 4);
     addMatchRecord(u[3], "EpsilonStar", RESULT_DRAW, 250, 4);
     resetWeeklyStats(u[3]->match_history);
-    /* Week 5 */
+    
     addMatchRecord(u[3], "BetaForce",   RESULT_LOSS, 0,   5);
 
-    /* --------------------------------------------------
-     * EpsilonStar — 1W  6L  2D  (9 matches, 5 weeks)
-     * -------------------------------------------------- */
-    /* Week 1 */
     addMatchRecord(u[4], "AlphaStrike", RESULT_LOSS, 0,   1);
     addMatchRecord(u[4], "BetaForce",   RESULT_LOSS, 0,   1);
     addMatchRecord(u[4], "GammaKnight", RESULT_LOSS, 0,   1);
     addMatchRecord(u[4], "DeltaBlitz",  RESULT_LOSS, 0,   1);
     resetWeeklyStats(u[4]->match_history);
-    /* Week 2 */
+    
     addMatchRecord(u[4], "BotPlayer1",  RESULT_WIN,  500, 2);
     resetWeeklyStats(u[4]->match_history);
-    /* Week 3 */
+    
     addMatchRecord(u[4], "AlphaStrike", RESULT_LOSS, 0,   3);
     addMatchRecord(u[4], "GammaKnight", RESULT_DRAW, 250, 3);
     resetWeeklyStats(u[4]->match_history);
-    /* Week 4 */
+    
     addMatchRecord(u[4], "DeltaBlitz",  RESULT_DRAW, 250, 4);
     resetWeeklyStats(u[4]->match_history);
-    /* Week 5 */
+    
     addMatchRecord(u[4], "BetaForce",   RESULT_LOSS, 0,   5);
 
-    /* Update levels and populate leaderboard */
     for (i = 0; i < 5; i++) {
         if (u[i] == NULL) continue;
         updateUserLevel(u[i]);
@@ -242,20 +199,15 @@ static void seedPredefinedUsers(void) {
                          u[i]->total_wins, u[i]->level);
     }
 
-    /* Advance global week counter to reflect pre-seeded history */
     g_current_week = 6;
 
     printf("5 predefined users loaded with match history and leaderboard entries.\n");
 }
 
-/* ======================================================
- * Simulate a match between two users
- * ====================================================== */
 static void simulateMatch(UserNode* u1, UserNode* u2) {
     int rating1 = getSquadAverageRating(u1->squad);
     int rating2 = getSquadAverageRating(u2->squad);
 
-    /* Add randomness ±10 */
     int r1 = rating1 + (rand() % 21) - 10;
     int r2 = rating2 + (rand() % 21) - 10;
 
@@ -296,24 +248,18 @@ static void simulateMatch(UserNode* u1, UserNode* u2) {
     printf("%s earned %d coins. %s earned %d coins.\n",
            u1->name, coins1, u2->name, coins2);
 
-    /* Record in match history */
     pushMatch(u1->match_history, u2->name, result1, coins1, g_current_week);
     pushMatch(u2->match_history, u1->name, result2, coins2, g_current_week);
 
-    /* Update levels */
     updateUserLevel(u1);
     updateUserLevel(u2);
 
-    /* Update leaderboard */
     updateLeaderboardEntry(&g_leaderboard, u1->id,
                            u1->total_wins, u1->level);
     updateLeaderboardEntry(&g_leaderboard, u2->id,
                            u2->total_wins, u2->level);
 }
 
-/* ======================================================
- * INVENTORY MENU
- * ====================================================== */
 static void inventoryMenu(UserNode* user) {
     int choice;
     char input[MAX_NAME_LEN];
@@ -346,7 +292,7 @@ static void inventoryMenu(UserNode* user) {
             clearInput();
             searchInventoryByRating(user->inventory, min_r, max_r);
         } else if (choice == 4) {
-            /* Sell a player */
+            
             displayInventory(user->inventory);
             printf("Enter player name to sell: ");
             readLine(input, sizeof(input));
@@ -374,10 +320,10 @@ static void inventoryMenu(UserNode* user) {
             clearInput();
 
             if (confirm == 1) {
-                /* Remove from inventory */
+                
                 InventoryNode* removed = removePlayerByName(user->inventory, input);
                 if (removed != NULL) {
-                    /* Add to marketplace */
+                    
                     addToMarketplace(&g_market, removed->name, removed->type,
                                      removed->rating, price, user->id);
                     printf("'%s' listed on marketplace for %d coins.\n",
@@ -391,9 +337,6 @@ static void inventoryMenu(UserNode* user) {
     }
 }
 
-/* ======================================================
- * SQUAD MENU
- * ====================================================== */
 static void squadMenu(UserNode* user) {
     int choice;
     char existing[MAX_NAME_LEN], new_name[MAX_NAME_LEN];
@@ -430,9 +373,6 @@ static void squadMenu(UserNode* user) {
     }
 }
 
-/* ======================================================
- * MARKETPLACE MENU
- * ====================================================== */
 static void marketplaceMenu(UserNode* user) {
     int choice;
     char input[MAX_NAME_LEN];
@@ -500,17 +440,14 @@ static void marketplaceMenu(UserNode* user) {
                 int price     = card->price;
                 int seller_id = card->seller_id;
 
-                /* Remove from marketplace */
                 MarketNode* bought = removeFromMarketplace(&g_market, input);
                 if (bought != NULL) {
-                    /* Add to buyer's inventory */
+                    
                     addPlayer(user->inventory, bought->name,
                               bought->type, bought->rating, bought->price);
 
-                    /* Deduct from buyer */
                     user->coins -= price;
 
-                    /* Credit to seller */
                     UserNode* seller = findUserByID(&g_registry, seller_id);
                     if (seller != NULL) {
                         seller->coins += price;
@@ -529,9 +466,6 @@ static void marketplaceMenu(UserNode* user) {
     }
 }
 
-/* ======================================================
- * MATCHMAKING MENU
- * ====================================================== */
 static void matchmakingMenu(UserNode* user) {
     int choice;
 
@@ -582,7 +516,6 @@ static void matchmakingMenu(UserNode* user) {
                 continue;
             }
 
-            /* Remove both from queue */
             removeFromQueue(&g_matchQueue, user->id);
             removeFromQueue(&g_matchQueue, opp_id);
 
@@ -593,9 +526,6 @@ static void matchmakingMenu(UserNode* user) {
     }
 }
 
-/* ======================================================
- * LEADERBOARD MENU
- * ====================================================== */
 static void leaderboardMenu(UserNode* user) {
     int choice;
 
@@ -632,7 +562,6 @@ static void leaderboardMenu(UserNode* user) {
                 printf("  %s [%s] received %d coins as weekly reward.\n",
                        current->name, getLevelName(current->level), reward);
 
-                /* Reset weekly match stats */
                 if (current->match_history != NULL) {
                     resetWeeklyStats(current->match_history);
                 }
@@ -647,9 +576,6 @@ static void leaderboardMenu(UserNode* user) {
     }
 }
 
-/* ======================================================
- * MATCH HISTORY MENU
- * ====================================================== */
 static void matchHistoryMenu(UserNode* user) {
     int choice;
 
@@ -686,9 +612,6 @@ static void matchHistoryMenu(UserNode* user) {
     }
 }
 
-/* ======================================================
- * USER DASHBOARD (after login)
- * ====================================================== */
 static void userDashboard(UserNode* user) {
     int choice;
 
@@ -732,20 +655,15 @@ static void userDashboard(UserNode* user) {
     }
 }
 
-/* ======================================================
- * MAIN MENU
- * ====================================================== */
 int main(void) {
     srand((unsigned int)time(NULL));
 
-    /* Initialize global structures */
     initRegistry(&g_registry);
     initMarketplace(&g_market);
     seedMarketplace(&g_market);
     initLeaderboard(&g_leaderboard);
     initMatchQueue(&g_matchQueue);
 
-    /* Load predefined users */
     seedPredefinedUsers();
 
     printf("===========================================\n");
@@ -770,7 +688,7 @@ int main(void) {
             break;
 
         } else if (choice == 1) {
-            /* Register */
+            
             char name[MAX_NAME_LEN];
             printf("Enter username: ");
             readLine(name, sizeof(name));
@@ -778,7 +696,7 @@ int main(void) {
             UserNode* newUser = addUser(&g_registry, name);
             if (newUser != NULL) {
                 initUserModules(newUser);
-                /* Add to leaderboard */
+                
                 addToLeaderboard(&g_leaderboard, newUser->id,
                                  newUser->name, 0, 0);
                 printf("Registration successful!\n");
@@ -788,7 +706,7 @@ int main(void) {
             }
 
         } else if (choice == 2) {
-            /* Login */
+            
             char name[MAX_NAME_LEN];
             printf("Enter username: ");
             readLine(name, sizeof(name));
@@ -812,7 +730,6 @@ int main(void) {
         }
     }
 
-    /* Cleanup */
     UserNode* current = g_registry.head;
     while (current != NULL) {
         UserNode* next = current->next;

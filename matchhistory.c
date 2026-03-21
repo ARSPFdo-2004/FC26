@@ -1,6 +1,5 @@
 #include "matchhistory.h"
 
-/* INIT_MATCH_STACK(stack : REFERENCE TO MatchStack) */
 void initMatchStack(MatchStack* stack) {
     stack->top           = NULL;
     stack->total_matches = 0;
@@ -12,13 +11,10 @@ void initMatchStack(MatchStack* stack) {
     stack->current_week  = 1;
 }
 
-/* IS_STACK_EMPTY(stack : REFERENCE TO MatchStack) RETURNS BOOLEAN */
 bool isStackEmpty(MatchStack* stack) {
     return stack->top == NULL;
 }
 
-/* PUSH_MATCH(stack : REFERENCE TO MatchStack, opponent : STRING,
-              result : CHAR, coins : INTEGER, week : INTEGER) */
 void pushMatch(MatchStack* stack, const char* opponent,
                char result, int coins, int week) {
     MatchRecord* record = (MatchRecord*)malloc(sizeof(MatchRecord));
@@ -50,7 +46,6 @@ void pushMatch(MatchStack* stack, const char* opponent,
     }
 }
 
-/* POP_MATCH(stack : REFERENCE TO MatchStack) */
 void popMatch(MatchStack* stack) {
     if (isStackEmpty(stack)) {
         printf("Match history is empty.\n");
@@ -60,7 +55,6 @@ void popMatch(MatchStack* stack) {
     MatchRecord* temp = stack->top;
     stack->top        = stack->top->next;
 
-    /* Update counters */
     stack->total_matches--;
     if (temp->result == RESULT_WIN) {
         stack->total_wins--;
@@ -73,7 +67,6 @@ void popMatch(MatchStack* stack) {
     free(temp);
 }
 
-/* DISPLAY_MATCH_HISTORY(stack : REFERENCE TO MatchStack) */
 void displayMatchHistory(MatchStack* stack) {
     if (isStackEmpty(stack)) {
         printf("No match history available.\n");
@@ -115,7 +108,6 @@ void displayMatchHistory(MatchStack* stack) {
            stack->week_wins, stack->week_matches);
 }
 
-/* GET_WIN_PERCENTAGE(stack : REFERENCE TO MatchStack) RETURNS FLOAT */
 float getWinPercentage(MatchStack* stack) {
     if (stack->total_matches == 0) {
         return 0.0f;
@@ -123,7 +115,6 @@ float getWinPercentage(MatchStack* stack) {
     return (float)stack->total_wins / (float)stack->total_matches * 100.0f;
 }
 
-/* GET_WEEKLY_WIN_PERCENTAGE(stack : REFERENCE TO MatchStack) RETURNS FLOAT */
 float getWeeklyWinPercentage(MatchStack* stack) {
     if (stack->week_matches == 0) {
         return 0.0f;
@@ -131,14 +122,12 @@ float getWeeklyWinPercentage(MatchStack* stack) {
     return (float)stack->week_wins / (float)stack->week_matches * 100.0f;
 }
 
-/* RESET_WEEKLY_STATS(stack : REFERENCE TO MatchStack) */
 void resetWeeklyStats(MatchStack* stack) {
     stack->week_wins    = 0;
     stack->week_matches = 0;
     stack->current_week++;
 }
 
-/* FREE_MATCH_STACK(stack : REFERENCE TO MatchStack) */
 void freeMatchStack(MatchStack* stack) {
     while (!isStackEmpty(stack)) {
         popMatch(stack);

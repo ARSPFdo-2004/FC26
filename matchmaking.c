@@ -1,18 +1,15 @@
 #include "matchmaking.h"
 
-/* INIT_MATCH_QUEUE(queue : REFERENCE TO MatchQueue) */
 void initMatchQueue(MatchQueue* queue) {
     queue->front = NULL;
     queue->rear  = NULL;
     queue->size  = 0;
 }
 
-/* IS_QUEUE_EMPTY(queue : REFERENCE TO MatchQueue) RETURNS BOOLEAN */
 bool isQueueEmpty(MatchQueue* queue) {
     return queue->front == NULL;
 }
 
-/* ENQUEUE_USER(queue : REFERENCE TO MatchQueue, user_id, user_level : INTEGER) */
 void enqueueUser(MatchQueue* queue, int user_id, int user_level) {
     MatchQueueNode* newNode = (MatchQueueNode*)malloc(sizeof(MatchQueueNode));
     if (newNode == NULL) {
@@ -35,7 +32,6 @@ void enqueueUser(MatchQueue* queue, int user_id, int user_level) {
     queue->size++;
 }
 
-/* DEQUEUE_USER(queue : REFERENCE TO MatchQueue) RETURNS INTEGER (user_id, or -1) */
 int dequeueUser(MatchQueue* queue) {
     if (isQueueEmpty(queue)) {
         printf("Matchmaking queue is empty.\n");
@@ -57,7 +53,6 @@ int dequeueUser(MatchQueue* queue) {
     return user_id;
 }
 
-/* PEEK_QUEUE(queue : REFERENCE TO MatchQueue) RETURNS INTEGER (user_id, or -1) */
 int peekQueue(MatchQueue* queue) {
     if (isQueueEmpty(queue)) {
         printf("Matchmaking queue is empty.\n");
@@ -66,8 +61,6 @@ int peekQueue(MatchQueue* queue) {
     return queue->front->user_id;
 }
 
-/* IS_USER_IN_QUEUE(queue : REFERENCE TO MatchQueue, user_id : INTEGER)
-   RETURNS BOOLEAN */
 bool isUserInQueue(MatchQueue* queue, int user_id) {
     MatchQueueNode* current = queue->front;
     while (current != NULL) {
@@ -79,7 +72,6 @@ bool isUserInQueue(MatchQueue* queue, int user_id) {
     return false;
 }
 
-/* DISPLAY_QUEUE(queue : REFERENCE TO MatchQueue) */
 void displayMatchQueue(MatchQueue* queue) {
     if (isQueueEmpty(queue)) {
         printf("Matchmaking queue is empty.\n");
@@ -100,8 +92,6 @@ void displayMatchQueue(MatchQueue* queue) {
     printf("Queue size: %d\n\n", queue->size);
 }
 
-/* FIND_SAME_LEVEL_OPPONENT(queue : REFERENCE TO MatchQueue, user_id, user_level : INTEGER)
-   RETURNS INTEGER (opponent_id, or -1 if none found) */
 int findSameLevelOpponent(MatchQueue* queue, int user_id, int user_level) {
     MatchQueueNode* current = queue->front;
     while (current != NULL) {
@@ -114,7 +104,6 @@ int findSameLevelOpponent(MatchQueue* queue, int user_id, int user_level) {
     return -1;
 }
 
-/* REMOVE_FROM_QUEUE(queue : REFERENCE TO MatchQueue, user_id : INTEGER) */
 void removeFromQueue(MatchQueue* queue, int user_id) {
     MatchQueueNode* current  = queue->front;
     MatchQueueNode* previous = NULL;

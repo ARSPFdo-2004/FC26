@@ -1,13 +1,11 @@
 #include "inventory.h"
 
-/* INIT_INVENTORY(inv : REFERENCE TO PlayerInventory) */
 void initInventory(PlayerInventory* inv) {
     inv->head  = NULL;
     inv->tail  = NULL;
     inv->count = 0;
 }
 
-/* CREATE_INVENTORY_NODE(name, type, rating, price) RETURNS POINTER TO InventoryNode */
 InventoryNode* createInventoryNode(const char* name, const char* type,
                                    int rating, int price) {
     InventoryNode* node = (InventoryNode*)malloc(sizeof(InventoryNode));
@@ -26,7 +24,6 @@ InventoryNode* createInventoryNode(const char* name, const char* type,
     return node;
 }
 
-/* ADD_PLAYER(inv : REFERENCE TO PlayerInventory, name, type, rating, price) */
 void addPlayer(PlayerInventory* inv, const char* name, const char* type,
                int rating, int price) {
     InventoryNode* node = createInventoryNode(name, type, rating, price);
@@ -42,8 +39,6 @@ void addPlayer(PlayerInventory* inv, const char* name, const char* type,
     inv->count++;
 }
 
-/* REMOVE_PLAYER_BY_NAME(inv : REFERENCE TO PlayerInventory, name : STRING)
-   RETURNS POINTER TO InventoryNode (caller must free) */
 InventoryNode* removePlayerByName(PlayerInventory* inv, const char* name) {
     InventoryNode* current = inv->head;
 
@@ -71,8 +66,6 @@ InventoryNode* removePlayerByName(PlayerInventory* inv, const char* name) {
     return NULL;
 }
 
-/* SEARCH_BY_NAME(inv : REFERENCE TO PlayerInventory, name : STRING)
-   RETURNS POINTER TO InventoryNode */
 InventoryNode* searchInventoryByName(PlayerInventory* inv, const char* name) {
     InventoryNode* current = inv->head;
     while (current != NULL) {
@@ -84,7 +77,6 @@ InventoryNode* searchInventoryByName(PlayerInventory* inv, const char* name) {
     return NULL;
 }
 
-/* SEARCH_BY_TYPE(inv : REFERENCE TO PlayerInventory, type : STRING) */
 void searchInventoryByType(PlayerInventory* inv, const char* type) {
     bool found = false;
     InventoryNode* current = inv->head;
@@ -109,7 +101,6 @@ void searchInventoryByType(PlayerInventory* inv, const char* type) {
     printf("\n");
 }
 
-/* SEARCH_BY_RATING(inv : REFERENCE TO PlayerInventory, min : INTEGER, max : INTEGER) */
 void searchInventoryByRating(PlayerInventory* inv, int min, int max) {
     bool found = false;
     InventoryNode* current = inv->head;
@@ -134,7 +125,6 @@ void searchInventoryByRating(PlayerInventory* inv, int min, int max) {
     printf("\n");
 }
 
-/* DISPLAY_INVENTORY(inv : REFERENCE TO PlayerInventory) */
 void displayInventory(PlayerInventory* inv) {
     if (inv->head == NULL) {
         printf("Inventory is empty.\n");
@@ -158,9 +148,8 @@ void displayInventory(PlayerInventory* inv) {
     printf("\nTotal players: %d\n\n", inv->count);
 }
 
-/* GIVE_INITIAL_PLAYERS(inv : REFERENCE TO PlayerInventory, user_id : INTEGER) */
 void giveInitialPlayers(PlayerInventory* inv, int user_id) {
-    /* 11 players: 3 FW, 3 MF, 4 DF, 1 GK — ratings 60-69 */
+    
     char name[MAX_NAME_LEN];
     int ratings[11] = {62, 65, 61, 67, 63, 60, 68, 64, 66, 61, 63};
 
@@ -198,7 +187,6 @@ void giveInitialPlayers(PlayerInventory* inv, int user_id) {
     addPlayer(inv, name, "GK", ratings[10], 500);
 }
 
-/* FREE_INVENTORY(inv : REFERENCE TO PlayerInventory) */
 void freeInventory(PlayerInventory* inv) {
     InventoryNode* current = inv->head;
     while (current != NULL) {
