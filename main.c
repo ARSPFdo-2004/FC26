@@ -66,6 +66,189 @@ static void initUserModules(UserNode* user) {
 }
 
 /* ======================================================
+ * Helper: push a match record and keep UserNode totals in sync
+ * ====================================================== */
+static void addMatchRecord(UserNode* user, const char* opponent,
+                           char result, int coins, int week) {
+    pushMatch(user->match_history, opponent, result, coins, week);
+    user->total_wins   = user->match_history->total_wins;
+    user->total_losses = user->match_history->total_losses;
+    user->total_draws  = user->match_history->total_draws;
+    user->coins += coins;
+}
+
+/* ======================================================
+ * Seed 5 predefined users with usernames, match history,
+ * and leaderboard entries
+ * ====================================================== */
+static void seedPredefinedUsers(void) {
+    static const char* names[5] = {
+        "AlphaStrike", "BetaForce", "GammaKnight", "DeltaBlitz", "EpsilonStar"
+    };
+    UserNode* u[5];
+    int i;
+
+    /* Create users */
+    for (i = 0; i < 5; i++) {
+        u[i] = addUser(&g_registry, names[i]);
+        if (u[i] == NULL) {
+            u[i] = findUserByName(&g_registry, names[i]);
+            continue;
+        }
+        initUserModules(u[i]);
+    }
+
+    /* --------------------------------------------------
+     * AlphaStrike — 15W  3L  2D  (20 matches, 5 weeks)
+     * -------------------------------------------------- */
+    /* Week 1 */
+    addMatchRecord(u[0], "BetaForce",   RESULT_WIN,  500, 1);
+    addMatchRecord(u[0], "GammaKnight", RESULT_WIN,  500, 1);
+    addMatchRecord(u[0], "EpsilonStar", RESULT_WIN,  500, 1);
+    addMatchRecord(u[0], "DeltaBlitz",  RESULT_DRAW, 250, 1);
+    resetWeeklyStats(u[0]->match_history);
+    /* Week 2 */
+    addMatchRecord(u[0], "BotPlayer1",  RESULT_WIN,  500, 2);
+    addMatchRecord(u[0], "GammaKnight", RESULT_WIN,  500, 2);
+    addMatchRecord(u[0], "BetaForce",   RESULT_LOSS, 0,   2);
+    addMatchRecord(u[0], "BotPlayer2",  RESULT_WIN,  500, 2);
+    resetWeeklyStats(u[0]->match_history);
+    /* Week 3 */
+    addMatchRecord(u[0], "DeltaBlitz",  RESULT_WIN,  500, 3);
+    addMatchRecord(u[0], "EpsilonStar", RESULT_WIN,  500, 3);
+    addMatchRecord(u[0], "BotPlayer3",  RESULT_WIN,  500, 3);
+    addMatchRecord(u[0], "GammaKnight", RESULT_DRAW, 250, 3);
+    resetWeeklyStats(u[0]->match_history);
+    /* Week 4 */
+    addMatchRecord(u[0], "BetaForce",   RESULT_WIN,  500, 4);
+    addMatchRecord(u[0], "BotPlayer1",  RESULT_LOSS, 0,   4);
+    addMatchRecord(u[0], "DeltaBlitz",  RESULT_WIN,  500, 4);
+    addMatchRecord(u[0], "EpsilonStar", RESULT_WIN,  500, 4);
+    resetWeeklyStats(u[0]->match_history);
+    /* Week 5 */
+    addMatchRecord(u[0], "BotPlayer2",  RESULT_WIN,  500, 5);
+    addMatchRecord(u[0], "GammaKnight", RESULT_WIN,  500, 5);
+    addMatchRecord(u[0], "BotPlayer3",  RESULT_WIN,  500, 5);
+    addMatchRecord(u[0], "BetaForce",   RESULT_LOSS, 0,   5);
+
+    /* --------------------------------------------------
+     * BetaForce — 10W  5L  2D  (17 matches, 5 weeks)
+     * -------------------------------------------------- */
+    /* Week 1 */
+    addMatchRecord(u[1], "AlphaStrike", RESULT_LOSS, 0,   1);
+    addMatchRecord(u[1], "GammaKnight", RESULT_WIN,  500, 1);
+    addMatchRecord(u[1], "DeltaBlitz",  RESULT_WIN,  500, 1);
+    addMatchRecord(u[1], "EpsilonStar", RESULT_WIN,  500, 1);
+    resetWeeklyStats(u[1]->match_history);
+    /* Week 2 */
+    addMatchRecord(u[1], "AlphaStrike", RESULT_WIN,  500, 2);
+    addMatchRecord(u[1], "BotPlayer1",  RESULT_DRAW, 250, 2);
+    addMatchRecord(u[1], "DeltaBlitz",  RESULT_WIN,  500, 2);
+    resetWeeklyStats(u[1]->match_history);
+    /* Week 3 */
+    addMatchRecord(u[1], "GammaKnight", RESULT_LOSS, 0,   3);
+    addMatchRecord(u[1], "BotPlayer2",  RESULT_WIN,  500, 3);
+    addMatchRecord(u[1], "EpsilonStar", RESULT_WIN,  500, 3);
+    resetWeeklyStats(u[1]->match_history);
+    /* Week 4 */
+    addMatchRecord(u[1], "AlphaStrike", RESULT_LOSS, 0,   4);
+    addMatchRecord(u[1], "BotPlayer3",  RESULT_WIN,  500, 4);
+    addMatchRecord(u[1], "GammaKnight", RESULT_DRAW, 250, 4);
+    resetWeeklyStats(u[1]->match_history);
+    /* Week 5 */
+    addMatchRecord(u[1], "DeltaBlitz",  RESULT_WIN,  500, 5);
+    addMatchRecord(u[1], "AlphaStrike", RESULT_LOSS, 0,   5);
+    addMatchRecord(u[1], "EpsilonStar", RESULT_LOSS, 0,   5);
+    addMatchRecord(u[1], "BotPlayer1",  RESULT_WIN,  500, 5);
+
+    /* --------------------------------------------------
+     * GammaKnight — 6W  5L  3D  (14 matches, 5 weeks)
+     * -------------------------------------------------- */
+    /* Week 1 */
+    addMatchRecord(u[2], "AlphaStrike", RESULT_LOSS, 0,   1);
+    addMatchRecord(u[2], "BetaForce",   RESULT_LOSS, 0,   1);
+    addMatchRecord(u[2], "DeltaBlitz",  RESULT_WIN,  500, 1);
+    addMatchRecord(u[2], "EpsilonStar", RESULT_WIN,  500, 1);
+    resetWeeklyStats(u[2]->match_history);
+    /* Week 2 */
+    addMatchRecord(u[2], "AlphaStrike", RESULT_LOSS, 0,   2);
+    addMatchRecord(u[2], "BotPlayer1",  RESULT_WIN,  500, 2);
+    addMatchRecord(u[2], "DeltaBlitz",  RESULT_WIN,  500, 2);
+    resetWeeklyStats(u[2]->match_history);
+    /* Week 3 */
+    addMatchRecord(u[2], "BetaForce",   RESULT_WIN,  500, 3);
+    addMatchRecord(u[2], "EpsilonStar", RESULT_DRAW, 250, 3);
+    addMatchRecord(u[2], "AlphaStrike", RESULT_DRAW, 250, 3);
+    resetWeeklyStats(u[2]->match_history);
+    /* Week 4 */
+    addMatchRecord(u[2], "BotPlayer2",  RESULT_DRAW, 250, 4);
+    addMatchRecord(u[2], "BetaForce",   RESULT_WIN,  500, 4);
+    resetWeeklyStats(u[2]->match_history);
+    /* Week 5 */
+    addMatchRecord(u[2], "DeltaBlitz",  RESULT_LOSS, 0,   5);
+    addMatchRecord(u[2], "BotPlayer3",  RESULT_LOSS, 0,   5);
+
+    /* --------------------------------------------------
+     * DeltaBlitz — 3W  6L  2D  (11 matches, 5 weeks)
+     * -------------------------------------------------- */
+    /* Week 1 */
+    addMatchRecord(u[3], "AlphaStrike", RESULT_DRAW, 250, 1);
+    addMatchRecord(u[3], "BetaForce",   RESULT_LOSS, 0,   1);
+    addMatchRecord(u[3], "GammaKnight", RESULT_LOSS, 0,   1);
+    addMatchRecord(u[3], "EpsilonStar", RESULT_WIN,  500, 1);
+    resetWeeklyStats(u[3]->match_history);
+    /* Week 2 */
+    addMatchRecord(u[3], "BetaForce",   RESULT_LOSS, 0,   2);
+    addMatchRecord(u[3], "GammaKnight", RESULT_LOSS, 0,   2);
+    addMatchRecord(u[3], "BotPlayer1",  RESULT_WIN,  500, 2);
+    resetWeeklyStats(u[3]->match_history);
+    /* Week 3 */
+    addMatchRecord(u[3], "AlphaStrike", RESULT_LOSS, 0,   3);
+    resetWeeklyStats(u[3]->match_history);
+    /* Week 4 */
+    addMatchRecord(u[3], "BotPlayer2",  RESULT_WIN,  500, 4);
+    addMatchRecord(u[3], "EpsilonStar", RESULT_DRAW, 250, 4);
+    resetWeeklyStats(u[3]->match_history);
+    /* Week 5 */
+    addMatchRecord(u[3], "BetaForce",   RESULT_LOSS, 0,   5);
+
+    /* --------------------------------------------------
+     * EpsilonStar — 1W  6L  2D  (9 matches, 5 weeks)
+     * -------------------------------------------------- */
+    /* Week 1 */
+    addMatchRecord(u[4], "AlphaStrike", RESULT_LOSS, 0,   1);
+    addMatchRecord(u[4], "BetaForce",   RESULT_LOSS, 0,   1);
+    addMatchRecord(u[4], "GammaKnight", RESULT_LOSS, 0,   1);
+    addMatchRecord(u[4], "DeltaBlitz",  RESULT_LOSS, 0,   1);
+    resetWeeklyStats(u[4]->match_history);
+    /* Week 2 */
+    addMatchRecord(u[4], "BotPlayer1",  RESULT_WIN,  500, 2);
+    resetWeeklyStats(u[4]->match_history);
+    /* Week 3 */
+    addMatchRecord(u[4], "AlphaStrike", RESULT_LOSS, 0,   3);
+    addMatchRecord(u[4], "GammaKnight", RESULT_DRAW, 250, 3);
+    resetWeeklyStats(u[4]->match_history);
+    /* Week 4 */
+    addMatchRecord(u[4], "DeltaBlitz",  RESULT_DRAW, 250, 4);
+    resetWeeklyStats(u[4]->match_history);
+    /* Week 5 */
+    addMatchRecord(u[4], "BetaForce",   RESULT_LOSS, 0,   5);
+
+    /* Update levels and populate leaderboard */
+    for (i = 0; i < 5; i++) {
+        if (u[i] == NULL) continue;
+        updateUserLevel(u[i]);
+        addToLeaderboard(&g_leaderboard, u[i]->id, u[i]->name,
+                         u[i]->total_wins, u[i]->level);
+    }
+
+    /* Advance global week counter to reflect pre-seeded history */
+    g_current_week = 6;
+
+    printf("5 predefined users loaded with match history and leaderboard entries.\n");
+}
+
+/* ======================================================
  * Simulate a match between two users
  * ====================================================== */
 static void simulateMatch(UserNode* u1, UserNode* u2) {
@@ -561,6 +744,9 @@ int main(void) {
     seedMarketplace(&g_market);
     initLeaderboard(&g_leaderboard);
     initMatchQueue(&g_matchQueue);
+
+    /* Load predefined users */
+    seedPredefinedUsers();
 
     printf("===========================================\n");
     printf("   Football Card Game — DSA Group Project  \n");
