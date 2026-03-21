@@ -51,4 +51,8 @@ void displayMarketplace(Marketplace* market);
 /* FREE_MARKETPLACE(market : REFERENCE TO Marketplace) */
 void freeMarketplace(Marketplace* market);
 
+/* SEED_MARKETPLACE(market : REFERENCE TO Marketplace)
+   Pre-populates the marketplace with well-known players (seller_id = 0). */
+void seedMarketplace(Marketplace* market);
+
 #endif /* MARKETPLACE_H */

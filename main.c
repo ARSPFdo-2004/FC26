@@ -558,6 +558,7 @@ int main(void) {
     /* Initialize global structures */
     initRegistry(&g_registry);
     initMarketplace(&g_market);
+    seedMarketplace(&g_market);
     initLeaderboard(&g_leaderboard);
     initMatchQueue(&g_matchQueue);
 

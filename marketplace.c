@@ -151,6 +151,33 @@ void displayMarketplace(Marketplace* market) {
     printf("\nTotal listings: %d\n\n", market->count);
 }
 
+/* SEED_MARKETPLACE(market : REFERENCE TO Marketplace)
+   Pre-populates the marketplace with well-known players (seller_id = 0). */
+void seedMarketplace(Marketplace* market) {
+    /* seller_id = 0 means system listing (no real user has id 0) */
+    addToMarketplace(market, "Ronaldo",       "FW", 94, 5000, 0);
+    addToMarketplace(market, "Messi",         "FW", 95, 5500, 0);
+    addToMarketplace(market, "Mbappe",        "FW", 93, 4800, 0);
+    addToMarketplace(market, "Marcelo",       "DF", 82, 2000, 0);
+    addToMarketplace(market, "Suarez",        "MF", 88, 3500, 0);
+    addToMarketplace(market, "Bellingham",    "MF", 91, 4000, 0);
+    addToMarketplace(market, "Vini Jr",       "FW", 92, 4500, 0);
+    addToMarketplace(market, "Valverde",      "MF", 88, 3500, 0);
+    addToMarketplace(market, "Rodrygo",       "FW", 87, 3000, 0);
+    addToMarketplace(market, "Camavinga",     "MF", 85, 2500, 0);
+    addToMarketplace(market, "Zlatan",        "FW", 90, 4000, 0);
+    addToMarketplace(market, "Pedri",         "MF", 89, 3500, 0);
+    addToMarketplace(market, "Neymar Jr",     "FW", 91, 4200, 0);
+    addToMarketplace(market, "Sergio Ramos",  "DF", 88, 3200, 0);
+    addToMarketplace(market, "Nicole",        "FW", 80, 1500, 0);
+    addToMarketplace(market, "Pele",          "MF", 98, 8000, 0);
+    addToMarketplace(market, "David Beckham", "FW", 89, 3500, 0);
+    addToMarketplace(market, "Lewandowski",   "FW", 92, 4500, 0);
+    addToMarketplace(market, "Dani Olmo",     "MF", 87, 3000, 0);
+    addToMarketplace(market, "Lamine Yamal",  "FW", 89, 3500, 0);
+    addToMarketplace(market, "Raphinha",      "MF", 87, 3000, 0);
+}
+
 /* FREE_MARKETPLACE(market : REFERENCE TO Marketplace) */
 void freeMarketplace(Marketplace* market) {
     if (market->head == NULL) {
