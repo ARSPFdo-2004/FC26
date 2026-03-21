@@ -15,134 +15,134 @@ const char* getLevelNameLB(int level) {
 }
 
 void initLeaderboard(Leaderboard* lb) {
-    lb->head  = NULL;
-    lb->count = 0;
+    lb -> head  = NULL;
+    lb -> count = 0;
 }
 
 void addToLeaderboard(Leaderboard* lb, int user_id, const char* name,
                       int wins, int level) {
-    LBNode* newNode = (LBNode*)malloc(sizeof(LBNode));
+    LBNode* newNode = (LBNode *) malloc(sizeof(LBNode));
     if (newNode == NULL) {
         printf("Memory allocation failed\n");
         exit(1);
     }
 
-    newNode->user_id = user_id;
-    strncpy(newNode->user_name, name, MAX_NAME_LEN - 1);
-    newNode->user_name[MAX_NAME_LEN - 1] = '\0';
-    newNode->wins  = wins;
-    newNode->level = level;
-    newNode->next  = NULL;
+    newNode -> user_id = user_id;
+    strncpy(newNode -> user_name, name, MAX_NAME_LEN - 1);
+    newNode -> user_name[MAX_NAME_LEN - 1] = '\0';
+    newNode -> wins  = wins;
+    newNode -> level = level;
+    newNode -> next  = NULL;
 
-    if (lb->head == NULL) {
-        newNode->next = newNode;  
-        lb->head = newNode;
+    if (lb -> head == NULL) {
+        newNode -> next = newNode;  
+        lb -> head = newNode;
     } else {
         
-        LBNode* tail = lb->head;
-        while (tail->next != lb->head) {
-            tail = tail->next;
+        LBNode* tail = lb -> head;
+        while (tail -> next != lb -> head) {
+            tail = tail -> next;
         }
-        tail->next    = newNode;
-        newNode->next = lb->head;
+        tail -> next    = newNode;
+        newNode -> next = lb -> head;
     }
 
-    lb->count++;
+    lb -> count++;
     sortLeaderboard(lb);
 }
 
 void removeFromLeaderboard(Leaderboard* lb, int user_id) {
-    if (lb->head == NULL) {
+    if (lb -> head == NULL) {
         return;
     }
 
-    LBNode* current  = lb->head;
+    LBNode* current  = lb -> head;
     LBNode* previous = NULL;
     int i;
 
-    for (i = 0; i < lb->count; i++) {
-        if (current->user_id == user_id) {
-            if (lb->count == 1) {
-                lb->head = NULL;
+    for (i = 0; i < lb -> count; i++) {
+        if (current -> user_id == user_id) {
+            if (lb -> count == 1) {
+                lb -> head = NULL;
             } else {
                 if (previous == NULL) {
                     
-                    LBNode* tail = lb->head;
-                    while (tail->next != lb->head) {
-                        tail = tail->next;
+                    LBNode* tail = lb -> head;
+                    while (tail -> next != lb -> head) {
+                        tail = tail -> next;
                     }
-                    lb->head   = current->next;
-                    tail->next = lb->head;
+                    lb -> head   = current -> next;
+                    tail -> next = lb -> head;
                 } else {
-                    previous->next = current->next;
+                    previous -> next = current -> next;
                 }
             }
             free(current);
-            lb->count--;
+            lb -> count--;
             return;
         }
         previous = current;
-        current  = current->next;
+        current  = current -> next;
     }
 }
 
 void updateLeaderboardEntry(Leaderboard* lb, int user_id,
                              int wins, int level) {
-    if (lb->head == NULL) {
+    if (lb -> head == NULL) {
         return;
     }
 
-    LBNode* current = lb->head;
+    LBNode* current = lb -> head;
     int i;
 
-    for (i = 0; i < lb->count; i++) {
-        if (current->user_id == user_id) {
-            current->wins  = wins;
-            current->level = level;
+    for (i = 0; i < lb -> count; i++) {
+        if (current -> user_id == user_id) {
+            current -> wins  = wins;
+            current -> level = level;
             sortLeaderboard(lb);
             return;
         }
-        current = current->next;
+        current = current -> next;
     }
 }
 
 void sortLeaderboard(Leaderboard* lb) {
-    if (lb->count <= 1) {
+    if (lb -> count <= 1) {
         return;
     }
 
     bool swapped;
     int pass;
 
-    for (pass = 0; pass < lb->count - 1; pass++) {
+    for (pass = 0; pass < lb -> count - 1; pass++) {
         swapped = false;
-        LBNode* current = lb->head;
+        LBNode* current = lb -> head;
         int i;
 
-        for (i = 0; i < lb->count - 1 - pass; i++) {
-            LBNode* next_node = current->next;
+        for (i = 0; i < lb -> count - 1 - pass; i++) {
+            LBNode* next_node = current -> next;
 
-            if (current->wins < next_node->wins) {
+            if (current -> wins < next_node -> wins) {
                 
-                int  tmp_id    = current->user_id;
-                int  tmp_wins  = current->wins;
-                int  tmp_level = current->level;
+                int  tmp_id    = current -> user_id;
+                int  tmp_wins  = current -> wins;
+                int  tmp_level = current -> level;
                 char tmp_name[MAX_NAME_LEN];
-                strncpy(tmp_name, current->user_name, MAX_NAME_LEN);
+                strncpy(tmp_name, current -> user_name, MAX_NAME_LEN);
 
-                current->user_id = next_node->user_id;
-                current->wins    = next_node->wins;
-                current->level   = next_node->level;
-                strncpy(current->user_name, next_node->user_name, MAX_NAME_LEN);
+                current -> user_id = next_node -> user_id;
+                current -> wins    = next_node -> wins;
+                current -> level   = next_node -> level;
+                strncpy(current -> user_name, next_node -> user_name, MAX_NAME_LEN);
 
-                next_node->user_id = tmp_id;
-                next_node->wins    = tmp_wins;
-                next_node->level   = tmp_level;
-                strncpy(next_node->user_name, tmp_name, MAX_NAME_LEN);
+                next_node -> user_id = tmp_id;
+                next_node -> wins    = tmp_wins;
+                next_node -> level   = tmp_level;
+                strncpy(next_node -> user_name, tmp_name, MAX_NAME_LEN);
 
                 swapped = true;
             }
-            current = current->next;
+            current = current -> next;
         }
 
         if (!swapped) {
@@ -152,7 +152,7 @@ void sortLeaderboard(Leaderboard* lb) {
 }
 
 void displayLeaderboard(Leaderboard* lb) {
-    if (lb->head == NULL) {
+    if (lb -> head == NULL) {
         printf("Leaderboard is empty.\n");
         return;
     }
@@ -164,56 +164,56 @@ void displayLeaderboard(Leaderboard* lb) {
            "----", "------", "--------------------",
            "---------------", "-----");
 
-    LBNode* current = lb->head;
+    LBNode* current = lb -> head;
     int rank = 1;
     int i;
 
-    for (i = 0; i < lb->count; i++) {
+    for (i = 0; i < lb -> count; i++) {
         printf("%-5d %-6d %-20s %-15s %-5d\n",
-               rank, current->user_id, current->user_name,
-               getLevelNameLB(current->level), current->wins);
-        current = current->next;
+               rank, current -> user_id, current -> user_name,
+               getLevelNameLB(current -> level), current -> wins);
+        current = current -> next;
         rank++;
     }
     printf("\n");
 }
 
 int getUserRank(Leaderboard* lb, int user_id) {
-    if (lb->head == NULL) {
+    if (lb -> head == NULL) {
         return -1;
     }
 
-    LBNode* current = lb->head;
+    LBNode* current = lb -> head;
     int rank = 1;
     int i;
 
-    for (i = 0; i < lb->count; i++) {
-        if (current->user_id == user_id) {
+    for (i = 0; i < lb -> count; i++) {
+        if (current -> user_id == user_id) {
             return rank;
         }
-        current = current->next;
+        current = current -> next;
         rank++;
     }
     return -1;
 }
 
 void freeLeaderboard(Leaderboard* lb) {
-    if (lb->head == NULL) {
+    if (lb -> head == NULL) {
         return;
     }
 
-    LBNode* tail = lb->head;
-    while (tail->next != lb->head) {
-        tail = tail->next;
+    LBNode* tail = lb -> head;
+    while (tail -> next != lb -> head) {
+        tail = tail -> next;
     }
-    tail->next = NULL;
+    tail -> next = NULL;
 
-    LBNode* current = lb->head;
+    LBNode* current = lb -> head;
     while (current != NULL) {
         LBNode* temp = current;
-        current = current->next;
+        current = current -> next;
         free(temp);
     }
-    lb->head  = NULL;
-    lb->count = 0;
+    lb -> head  = NULL;
+    lb -> count = 0;
 }

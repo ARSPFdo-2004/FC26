@@ -14,58 +14,58 @@ static const int WEEKLY_REWARDS[] = {
 };
 
 void initRegistry(UserRegistry* registry) {
-    registry->head = NULL;
-    registry->tail = NULL;
-    registry->user_count = 0;
+    registry -> head = NULL;
+    registry -> tail = NULL;
+    registry -> user_count = 0;
 }
 
 int newIDProvider(UserRegistry* registry) {
-    return registry->user_count + 1;
+    return registry -> user_count + 1;
 }
 
 UserNode* addUser(UserRegistry* registry, const char* name) {
     
-    UserNode* check = registry->head;
+    UserNode* check = registry -> head;
     while (check != NULL) {
-        if (strcasecmp(check->name, name) == 0) {
+        if (strcasecmp(check -> name, name) == 0) {
             printf("User '%s' already exists.\n", name);
             return NULL;
         }
-        check = check->next;
+        check = check -> next;
     }
 
-    UserNode* newNode = (UserNode*)malloc(sizeof(UserNode));
+    UserNode* newNode = (UserNode *) malloc(sizeof(UserNode));
     if (newNode == NULL) {
         printf("Memory allocation failed\n");
         exit(1);
     }
 
-    strncpy(newNode->name, name, MAX_NAME_LEN - 1);
-    newNode->name[MAX_NAME_LEN - 1] = '\0';
-    newNode->id           = newIDProvider(registry);
-    newNode->level        = 0;    
-    newNode->coins        = 5000; 
-    newNode->total_wins   = 0;
-    newNode->total_losses = 0;
-    newNode->total_draws  = 0;
-    newNode->week_wins    = 0;
-    newNode->week_matches = 0;
-    newNode->inventory    = NULL;
-    newNode->squad        = NULL;
-    newNode->match_history = NULL;
-    newNode->next         = NULL;
-    newNode->prev         = NULL;
+    strncpy(newNode -> name, name, MAX_NAME_LEN - 1);
+    newNode -> name[MAX_NAME_LEN - 1] = '\0';
+    newNode -> id           = newIDProvider(registry);
+    newNode -> level        = 0;    
+    newNode -> coins        = 5000; 
+    newNode -> total_wins   = 0;
+    newNode -> total_losses = 0;
+    newNode -> total_draws  = 0;
+    newNode -> week_wins    = 0;
+    newNode -> week_matches = 0;
+    newNode -> inventory    = NULL;
+    newNode -> squad        = NULL;
+    newNode -> match_history = NULL;
+    newNode -> next         = NULL;
+    newNode -> prev         = NULL;
 
-    if (registry->head == NULL) {
-        registry->head = newNode;
-        registry->tail = newNode;
+    if (registry -> head == NULL) {
+        registry -> head = newNode;
+        registry -> tail = newNode;
     } else {
-        newNode->prev          = registry->tail;
-        registry->tail->next   = newNode;
-        registry->tail         = newNode;
+        newNode -> prev          = registry -> tail;
+        registry -> tail->next   = newNode;
+        registry -> tail         = newNode;
     }
 
-    registry->user_count++;
+    registry -> user_count++;
     return newNode;
 }
 
@@ -74,24 +74,24 @@ void deleteAccount(UserRegistry* registry, UserNode* node) {
         return;
     }
 
-    if (node->prev != NULL) {
-        node->prev->next = node->next;
+    if (node -> prev != NULL) {
+        node -> prev->next = node -> next;
     } else {
-        registry->head = node->next;
+        registry -> head = node -> next;
     }
 
-    if (node->next != NULL) {
-        node->next->prev = node->prev;
+    if (node -> next != NULL) {
+        node -> next->prev = node -> prev;
     } else {
-        registry->tail = node->prev;
+        registry -> tail = node -> prev;
     }
 
-    registry->user_count--;
+    registry -> user_count--;
     free(node);
 }
 
 void traverseUsers(UserRegistry* registry) {
-    if (registry->head == NULL) {
+    if (registry -> head == NULL) {
         printf("No users registered.\n");
         return;
     }
@@ -102,39 +102,39 @@ void traverseUsers(UserRegistry* registry) {
            "---", "--------------------", "---------------",
            "----------", "------", "------", "------");
 
-    UserNode* current = registry->head;
+    UserNode* current = registry -> head;
     while (current != NULL) {
         printf("%-5d %-20s %-15s %-10d %-6d %-6d %-6d\n",
-               current->id,
-               current->name,
-               getLevelName(current->level),
-               current->coins,
-               current->total_wins,
-               current->total_losses,
-               current->total_draws);
-        current = current->next;
+               current -> id,
+               current -> name,
+               getLevelName(current -> level),
+               current -> coins,
+               current -> total_wins,
+               current -> total_losses,
+               current -> total_draws);
+        current = current -> next;
     }
     printf("\n");
 }
 
 UserNode* findUserByID(UserRegistry* registry, int id) {
-    UserNode* current = registry->head;
+    UserNode* current = registry -> head;
     while (current != NULL) {
-        if (current->id == id) {
+        if (current -> id == id) {
             return current;
         }
-        current = current->next;
+        current = current -> next;
     }
     return NULL;
 }
 
 UserNode* findUserByName(UserRegistry* registry, const char* name) {
-    UserNode* current = registry->head;
+    UserNode* current = registry -> head;
     while (current != NULL) {
-        if (strcasecmp(current->name, name) == 0) {
+        if (strcasecmp(current -> name, name) == 0) {
             return current;
         }
-        current = current->next;
+        current = current -> next;
     }
     return NULL;
 }
@@ -147,10 +147,10 @@ const char* getLevelName(int level) {
 }
 
 void updateUserLevel(UserNode* user) {
-    int wins = user->total_wins;
+    int wins = user -> total_wins;
     int new_level;
 
-    if      (wins >= 40) new_level = 8;
+    if (wins >= 40) new_level = 8;
     else if (wins >= 35) new_level = 7;
     else if (wins >= 28) new_level = 6;
     else if (wins >= 21) new_level = 5;
@@ -160,10 +160,10 @@ void updateUserLevel(UserNode* user) {
     else if (wins >= 3)  new_level = 1;
     else                 new_level = 0;
 
-    if (new_level != user->level) {
+    if (new_level != user -> level) {
         printf("  >> Level changed: %s -> %s\n",
-               getLevelName(user->level), getLevelName(new_level));
-        user->level = new_level;
+               getLevelName(user -> level), getLevelName(new_level));
+        user -> level = new_level;
     }
 }
 

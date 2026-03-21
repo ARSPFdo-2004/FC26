@@ -11,38 +11,38 @@ void initSquad(Squad* squad) {
 
     int i;
     for (i = 0; i < SQUAD_SIZE; i++) {
-        strncpy(squad->slots[i].position_type, types[i], 3);
-        squad->slots[i].position_type[3] = '\0';
-        squad->slots[i].player_name[0]   = '\0';
-        squad->slots[i].player_rating    = 0;
-        squad->slots[i].is_filled        = false;
+        strncpy(squad -> slots[i].position_type, types[i], 3);
+        squad -> slots[i].position_type[3] = '\0';
+        squad -> slots[i].player_name[0]   = '\0';
+        squad -> slots[i].player_rating    = 0;
+        squad -> slots[i].is_filled        = false;
     }
 }
 
 static InventoryNode* findBestOfType(PlayerInventory* inv, Squad* squad,
                                      const char* type) {
     InventoryNode* best    = NULL;
-    InventoryNode* current = inv->head;
+    InventoryNode* current = inv -> head;
 
     while (current != NULL) {
-        if (strcasecmp(current->type, type) == 0) {
+        if (strcasecmp(current -> type, type) == 0) {
             
             bool already_in = false;
             int k;
             for (k = 0; k < SQUAD_SIZE; k++) {
-                if (squad->slots[k].is_filled &&
-                    strcasecmp(squad->slots[k].player_name, current->name) == 0) {
+                if (squad -> slots[k].is_filled &&
+                    strcasecmp(squad -> slots[k].player_name, current -> name) == 0) {
                     already_in = true;
                     break;
                 }
             }
             if (!already_in) {
-                if (best == NULL || current->rating > best->rating) {
+                if (best == NULL || current -> rating > best -> rating) {
                     best = current;
                 }
             }
         }
-        current = current->next;
+        current = current -> next;
     }
     return best;
 }
@@ -51,19 +51,19 @@ void autoSelectBestSquad(Squad* squad, PlayerInventory* inv) {
     
     int i;
     for (i = 0; i < SQUAD_SIZE; i++) {
-        squad->slots[i].player_name[0] = '\0';
-        squad->slots[i].player_rating  = 0;
-        squad->slots[i].is_filled      = false;
+        squad -> slots[i].player_name[0] = '\0';
+        squad -> slots[i].player_rating  = 0;
+        squad -> slots[i].is_filled      = false;
     }
 
     for (i = 0; i < SQUAD_SIZE; i++) {
         InventoryNode* best = findBestOfType(inv, squad,
-                                             squad->slots[i].position_type);
+                                             squad -> slots[i].position_type);
         if (best != NULL) {
-            strncpy(squad->slots[i].player_name, best->name, MAX_NAME_LEN - 1);
-            squad->slots[i].player_name[MAX_NAME_LEN - 1] = '\0';
-            squad->slots[i].player_rating = best->rating;
-            squad->slots[i].is_filled     = true;
+            strncpy(squad -> slots[i].player_name, best -> name, MAX_NAME_LEN - 1);
+            squad -> slots[i].player_name[MAX_NAME_LEN - 1] = '\0';
+            squad -> slots[i].player_rating = best -> rating;
+            squad -> slots[i].is_filled     = true;
         }
     }
 
@@ -77,8 +77,8 @@ void replacePlayer(Squad* squad, PlayerInventory* inv,
     int slot_idx = -1;
     int i;
     for (i = 0; i < SQUAD_SIZE; i++) {
-        if (squad->slots[i].is_filled &&
-            strcasecmp(squad->slots[i].player_name, existing_name) == 0) {
+        if (squad -> slots[i].is_filled &&
+            strcasecmp(squad -> slots[i].player_name, existing_name) == 0) {
             slot_idx = i;
             break;
         }
@@ -95,15 +95,15 @@ void replacePlayer(Squad* squad, PlayerInventory* inv,
         return;
     }
 
-    strncpy(squad->slots[slot_idx].player_name,
-            new_player->name, MAX_NAME_LEN - 1);
-    squad->slots[slot_idx].player_name[MAX_NAME_LEN - 1] = '\0';
-    squad->slots[slot_idx].player_rating  = new_player->rating;
-    squad->slots[slot_idx].is_filled      = true;
+    strncpy(squad -> slots[slot_idx].player_name,
+            new_player -> name, MAX_NAME_LEN - 1);
+    squad -> slots[slot_idx].player_name[MAX_NAME_LEN - 1] = '\0';
+    squad -> slots[slot_idx].player_rating  = new_player -> rating;
+    squad -> slots[slot_idx].is_filled      = true;
 
     printf("Replaced '%s' with '%s' (Rating: %d) in slot %d [%s].\n",
-           existing_name, new_player->name, new_player->rating,
-           slot_idx, squad->slots[slot_idx].position_type);
+           existing_name, new_player -> name, new_player -> rating,
+           slot_idx, squad -> slots[slot_idx].position_type);
 }
 
 void displaySquad(Squad* squad) {
@@ -114,16 +114,16 @@ void displaySquad(Squad* squad) {
 
     int i;
     for (i = 0; i < SQUAD_SIZE; i++) {
-        if (squad->slots[i].is_filled) {
+        if (squad -> slots[i].is_filled) {
             printf("%-5d %-5s %-25s %-7d\n",
                    i + 1,
-                   squad->slots[i].position_type,
-                   squad->slots[i].player_name,
-                   squad->slots[i].player_rating);
+                   squad -> slots[i].position_type,
+                   squad -> slots[i].player_name,
+                   squad -> slots[i].player_rating);
         } else {
             printf("%-5d %-5s %-25s %-7s\n",
                    i + 1,
-                   squad->slots[i].position_type,
+                   squad -> slots[i].position_type,
                    "(empty)", "-");
         }
     }
@@ -142,8 +142,8 @@ int getSquadAverageRating(Squad* squad) {
     int i;
 
     for (i = 0; i < SQUAD_SIZE; i++) {
-        if (squad->slots[i].is_filled) {
-            total += squad->slots[i].player_rating;
+        if (squad -> slots[i].is_filled) {
+            total += squad -> slots[i].player_rating;
             filled++;
         }
     }

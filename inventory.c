@@ -1,26 +1,26 @@
 #include "inventory.h"
 
 void initInventory(PlayerInventory* inv) {
-    inv->head  = NULL;
-    inv->tail  = NULL;
-    inv->count = 0;
+    inv -> head  = NULL;
+    inv -> tail  = NULL;
+    inv -> count = 0;
 }
 
 InventoryNode* createInventoryNode(const char* name, const char* type,
                                    int rating, int price) {
-    InventoryNode* node = (InventoryNode*)malloc(sizeof(InventoryNode));
+    InventoryNode* node = (InventoryNode *) malloc(sizeof(InventoryNode));
     if (node == NULL) {
         printf("Memory allocation failed\n");
         exit(1);
     }
-    strncpy(node->name, name, MAX_NAME_LEN - 1);
-    node->name[MAX_NAME_LEN - 1] = '\0';
-    strncpy(node->type, type, TYPE_LEN - 1);
-    node->type[TYPE_LEN - 1] = '\0';
-    node->rating = rating;
-    node->price  = price;
-    node->next   = NULL;
-    node->prev   = NULL;
+    strncpy(node -> name, name, MAX_NAME_LEN - 1);
+    node -> name[MAX_NAME_LEN - 1] = '\0';
+    strncpy(node -> type, type, TYPE_LEN - 1);
+    node -> type[TYPE_LEN - 1] = '\0';
+    node -> rating = rating;
+    node -> price  = price;
+    node -> next   = NULL;
+    node -> prev   = NULL;
     return node;
 }
 
@@ -28,71 +28,71 @@ void addPlayer(PlayerInventory* inv, const char* name, const char* type,
                int rating, int price) {
     InventoryNode* node = createInventoryNode(name, type, rating, price);
 
-    if (inv->head == NULL) {
-        inv->head = node;
-        inv->tail = node;
+    if (inv -> head == NULL) {
+        inv -> head = node;
+        inv -> tail = node;
     } else {
-        node->prev       = inv->tail;
-        inv->tail->next  = node;
-        inv->tail        = node;
+        node -> prev       = inv -> tail;
+        inv -> tail->next  = node;
+        inv -> tail        = node;
     }
-    inv->count++;
+    inv -> count++;
 }
 
 InventoryNode* removePlayerByName(PlayerInventory* inv, const char* name) {
-    InventoryNode* current = inv->head;
+    InventoryNode* current = inv -> head;
 
     while (current != NULL) {
-        if (strcasecmp(current->name, name) == 0) {
-            if (current->prev != NULL) {
-                current->prev->next = current->next;
+        if (strcasecmp(current -> name, name) == 0) {
+            if (current -> prev != NULL) {
+                current -> prev->next = current -> next;
             } else {
-                inv->head = current->next;
+                inv -> head = current -> next;
             }
 
-            if (current->next != NULL) {
-                current->next->prev = current->prev;
+            if (current -> next != NULL) {
+                current -> next->prev = current -> prev;
             } else {
-                inv->tail = current->prev;
+                inv -> tail = current -> prev;
             }
 
-            current->next = NULL;
-            current->prev = NULL;
-            inv->count--;
+            current -> next = NULL;
+            current -> prev = NULL;
+            inv -> count--;
             return current;
         }
-        current = current->next;
+        current = current -> next;
     }
     return NULL;
 }
 
 InventoryNode* searchInventoryByName(PlayerInventory* inv, const char* name) {
-    InventoryNode* current = inv->head;
+    InventoryNode* current = inv -> head;
     while (current != NULL) {
-        if (strcasecmp(current->name, name) == 0) {
+        if (strcasecmp(current -> name, name) == 0) {
             return current;
         }
-        current = current->next;
+        current = current -> next;
     }
     return NULL;
 }
 
 void searchInventoryByType(PlayerInventory* inv, const char* type) {
     bool found = false;
-    InventoryNode* current = inv->head;
+    InventoryNode* current = inv -> head;
 
     printf("\n%-25s %-5s %-7s %-8s\n", "Name", "Type", "Rating", "Price");
     printf("%-25s %-5s %-7s %-8s\n",
            "-------------------------", "-----", "-------", "--------");
 
     while (current != NULL) {
-        if (strcasecmp(current->type, type) == 0) {
+        if (strcasecmp(current -> type, type) == 0) {
             printf("%-25s %-5s %-7d %-8d\n",
-                   current->name, current->type,
-                   current->rating, current->price);
+                   current -> name, current -> type,
+                   current -> rating, current -> price);
             found = true;
         }
-        current = current->next;
+        current = current -> next;
     }
 
     if (!found) {
@@ -103,20 +103,20 @@ void searchInventoryByType(PlayerInventory* inv, const char* type) {
 
 void searchInventoryByRating(PlayerInventory* inv, int min, int max) {
     bool found = false;
-    InventoryNode* current = inv->head;
+    InventoryNode* current = inv -> head;
 
     printf("\n%-25s %-5s %-7s %-8s\n", "Name", "Type", "Rating", "Price");
     printf("%-25s %-5s %-7s %-8s\n",
            "-------------------------", "-----", "-------", "--------");
 
     while (current != NULL) {
-        if (current->rating >= min && current->rating <= max) {
+        if (current -> rating >= min && current -> rating <= max) {
             printf("%-25s %-5s %-7d %-8d\n",
-                   current->name, current->type,
-                   current->rating, current->price);
+                   current -> name, current -> type,
+                   current -> rating, current -> price);
             found = true;
         }
-        current = current->next;
+        current = current -> next;
     }
 
     if (!found) {
@@ -126,7 +126,7 @@ void searchInventoryByRating(PlayerInventory* inv, int min, int max) {
 }
 
 void displayInventory(PlayerInventory* inv) {
-    if (inv->head == NULL) {
+    if (inv -> head == NULL) {
         printf("Inventory is empty.\n");
         return;
     }
@@ -137,15 +137,15 @@ void displayInventory(PlayerInventory* inv) {
            "---", "-------------------------", "-----", "-------", "--------");
 
     int i = 1;
-    InventoryNode* current = inv->head;
+    InventoryNode* current = inv -> head;
     while (current != NULL) {
         printf("%-3d %-25s %-5s %-7d %-8d\n",
-               i, current->name, current->type,
-               current->rating, current->price);
-        current = current->next;
+               i, current -> name, current -> type,
+               current -> rating, current -> price);
+        current = current -> next;
         i++;
     }
-    printf("\nTotal players: %d\n\n", inv->count);
+    printf("\nTotal players: %d\n\n", inv -> count);
 }
 
 void giveInitialPlayers(PlayerInventory* inv, int user_id) {
@@ -188,13 +188,13 @@ void giveInitialPlayers(PlayerInventory* inv, int user_id) {
 }
 
 void freeInventory(PlayerInventory* inv) {
-    InventoryNode* current = inv->head;
+    InventoryNode* current = inv -> head;
     while (current != NULL) {
         InventoryNode* temp = current;
-        current = current->next;
+        current = current -> next;
         free(temp);
     }
-    inv->head  = NULL;
-    inv->tail  = NULL;
-    inv->count = 0;
+    inv -> head  = NULL;
+    inv -> tail  = NULL;
+    inv -> count = 0;
 }
