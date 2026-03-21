@@ -33,7 +33,7 @@ UserNode* addUser(UserRegistry* registry, const char* name) {
     /* Check for duplicate name */
     UserNode* check = registry->head;
     while (check != NULL) {
-        if (strcmp(check->name, name) == 0) {
+        if (strcasecmp(check->name, name) == 0) {
             printf("User '%s' already exists.\n", name);
             return NULL;
         }
@@ -143,7 +143,7 @@ UserNode* findUserByID(UserRegistry* registry, int id) {
 UserNode* findUserByName(UserRegistry* registry, const char* name) {
     UserNode* current = registry->head;
     while (current != NULL) {
-        if (strcmp(current->name, name) == 0) {
+        if (strcasecmp(current->name, name) == 0) {
             return current;
         }
         current = current->next;

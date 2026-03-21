@@ -27,13 +27,13 @@ static InventoryNode* findBestOfType(PlayerInventory* inv, Squad* squad,
     InventoryNode* current = inv->head;
 
     while (current != NULL) {
-        if (strcmp(current->type, type) == 0) {
+        if (strcasecmp(current->type, type) == 0) {
             /* Check not already assigned to a slot */
             bool already_in = false;
             int k;
             for (k = 0; k < SQUAD_SIZE; k++) {
                 if (squad->slots[k].is_filled &&
-                    strcmp(squad->slots[k].player_name, current->name) == 0) {
+                    strcasecmp(squad->slots[k].player_name, current->name) == 0) {
                     already_in = true;
                     break;
                 }
@@ -84,7 +84,7 @@ void replacePlayer(Squad* squad, PlayerInventory* inv,
     int i;
     for (i = 0; i < SQUAD_SIZE; i++) {
         if (squad->slots[i].is_filled &&
-            strcmp(squad->slots[i].player_name, existing_name) == 0) {
+            strcasecmp(squad->slots[i].player_name, existing_name) == 0) {
             slot_idx = i;
             break;
         }
