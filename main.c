@@ -232,13 +232,15 @@ static void simulateMatch(UserNode* u1, UserNode* u2) {
     int red1 = (rand() % 10) == 0 ? 1 : 0;
     int red2 = (rand() % 10) == 0 ? 1 : 0;
 
-    printf("\n=== SCORECARD ===\n");
-    printf("%-15s   %d - %d   %-15s\n", u1->name, goals1, goals2, u2->name);
+    printf("\n=========================================\n");
+    printf("               SCORECARD                 \n");
+    printf("=========================================\n");
+    printf("%15s  %2d - %-2d  %-15s\n", u1->name, goals1, goals2, u2->name);
     printf("-----------------------------------------\n");
-    printf("%-15d   Shots   %-15d\n", shots1, shots2);
-    printf("%-15d   Fouls   %-15d\n", fouls1, fouls2);
-    printf("%-15d  Yellows  %-15d\n", yellow1, yellow2);
-    printf("%-15d   Reds    %-15d\n", red1, red2);
+    printf("%15d   Shots   %-15d\n", shots1, shots2);
+    printf("%15d   Fouls   %-15d\n", fouls1, fouls2);
+    printf("%15d  Yellows  %-15d\n", yellow1, yellow2);
+    printf("%15d   Reds    %-15d\n", red1, red2);
     printf("=========================================\n");
 
     char result1, result2;
