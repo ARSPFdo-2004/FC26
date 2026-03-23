@@ -1,4 +1,5 @@
 #include "marketplace.h"
+#include "user_registration.h"
 
 void initMarketplace(Marketplace* market) {
     market -> head  = NULL;
@@ -79,7 +80,7 @@ MarketNode* searchMarketByName(Marketplace* market, const char* name) {
     int i;
 
     for (i = 0; i < market -> count; i++) {
-        if (strcasecmp(current -> name, name) == 0) {
+        if (isPartialMatch(current -> name, name)) {
             return current;
         }
         current = current -> next;
@@ -143,28 +144,38 @@ void displayMarketplace(Marketplace* market) {
 }
 
 void seedMarketplace(Marketplace* market) {
-    
-    addToMarketplace(market, "Ronaldo",       "FW", 94, 5000, 0);
-    addToMarketplace(market, "Messi",         "FW", 95, 5500, 0);
-    addToMarketplace(market, "Mbappe",        "FW", 93, 4800, 0);
-    addToMarketplace(market, "Marcelo",       "DF", 82, 2000, 0);
-    addToMarketplace(market, "Suarez",        "MF", 88, 3500, 0);
-    addToMarketplace(market, "Bellingham",    "MF", 91, 4000, 0);
-    addToMarketplace(market, "Vini Jr",       "FW", 92, 4500, 0);
-    addToMarketplace(market, "Valverde",      "MF", 88, 3500, 0);
-    addToMarketplace(market, "Rodrygo",       "FW", 87, 3000, 0);
-    addToMarketplace(market, "Camavinga",     "MF", 85, 2500, 0);
-    addToMarketplace(market, "Zlatan",        "FW", 90, 4000, 0);
-    addToMarketplace(market, "Pedri",         "MF", 89, 3500, 0);
-    addToMarketplace(market, "Neymar Jr",     "FW", 91, 4200, 0);
-    addToMarketplace(market, "Sergio Ramos",  "DF", 88, 3200, 0);
-    addToMarketplace(market, "Nicole",        "FW", 80, 1500, 0);
-    addToMarketplace(market, "Pele",          "MF", 98, 8000, 0);
-    addToMarketplace(market, "David Beckham", "FW", 89, 3500, 0);
-    addToMarketplace(market, "Lewandowski",   "FW", 92, 4500, 0);
-    addToMarketplace(market, "Dani Olmo",     "MF", 87, 3000, 0);
-    addToMarketplace(market, "Lamine Yamal",  "FW", 89, 3500, 0);
-    addToMarketplace(market, "Raphinha",      "MF", 87, 3000, 0);
+    const char* fw_names[] = {"Lionel Messi", "Cristiano Ronaldo", "Kylian Mbappe", "Erling Haaland", "Neymar Jr", "Mohamed Salah", "Harry Kane", "Vinicius Junior", "Lautaro Martinez", "Marcus Rashford"};
+    const char* mf_names[] = {"Kevin De Bruyne", "Luka Modric", "Toni Kroos", "Bruno Fernandes", "Pedri", "Jude Bellingham", "Bernardo Silva", "Declan Rice", "Frenkie De Jong", "Rodri"};
+    const char* df_names[] = {"Joao Cancelo", "Kyle Walker", "Trent Alexander Arnold", "Virgil Van Dijk", "Ruben Dias", "Antonio Rudiger", "Kalidou Koulibaly", "Eder Militao", "Marquinhos", "Achraf Hakimi", "Alphonso Davies", "Andrew Robertson", "Reece James", "Dani Carvajal", "Milan Skriniar", "Mats Hummels", "Aymeric Laporte", "Jules Kounde", "Alessandro Bastoni", "Pau Torres"};
+    const char* gk_names[] = {"Emiliano Martinez", "Thibaut Courtois", "Ederson Moraes", "Alisson Becker", "Mike Maignan", "Gianluigi Donnarumma", "Andre Onana", "Keylor Navas", "Wojciech Szczesny"};
+
+    // Generate FW variants
+    for (int i = 0; i < 10; i++) {
+        int r = 60 + rand() % 51; // 60 to 110
+        int p = 5000 + ((r - 60) * (r - 60) * 198);
+        addToMarketplace(market, fw_names[i], "FW", r, p, 0);
+        r = 60 + rand() % 51;
+        p = 5000 + ((r - 60) * (r - 60) * 198);
+        addToMarketplace(market, fw_names[i], "FW", r, p, 0);
+    }
+    // Generate MF variants
+    for (int i = 0; i < 10; i++) {
+        int r = 60 + rand() % 51;
+        int p = 5000 + ((r - 60) * (r - 60) * 198);
+        addToMarketplace(market, mf_names[i], "MF", r, p, 0);
+    }
+    // Generate DF variants
+    for (int i = 0; i < 20; i++) {
+        int r = 60 + rand() % 51;
+        int p = 5000 + ((r - 60) * (r - 60) * 198);
+        addToMarketplace(market, df_names[i], "DF", r, p, 0);
+    }
+    // Generate GK variants
+    for (int i = 0; i < 9; i++) {
+        int r = 60 + rand() % 51;
+        int p = 5000 + ((r - 60) * (r - 60) * 198);
+        addToMarketplace(market, gk_names[i], "GK", r, p, 0);
+    }
 }
 
 void freeMarketplace(Marketplace* market) {

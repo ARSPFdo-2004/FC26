@@ -14,6 +14,7 @@
 typedef struct SquadSlot {
     char position_type[4];   
     char player_name[MAX_NAME_LEN];
+    char native_type[4];
     int  player_rating;
     bool is_filled;
 } SquadSlot;
@@ -34,5 +35,7 @@ void displaySquad(Squad* squad);
 int getSquadAverageRating(Squad* squad);
 
 bool isPlayerInSquad(Squad* squad, const char* name);
+
+void swapPlayersInSquad(Squad* squad, const char* name1, const char* name2);
 
 #endif 

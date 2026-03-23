@@ -1,4 +1,5 @@
 #include "inventory.h"
+#include "user_registration.h"
 
 void initInventory(PlayerInventory* inv) {
     inv -> head  = NULL;
@@ -69,7 +70,7 @@ InventoryNode* removePlayerByName(PlayerInventory* inv, const char* name) {
 InventoryNode* searchInventoryByName(PlayerInventory* inv, const char* name) {
     InventoryNode* current = inv -> head;
     while (current != NULL) {
-        if (strcasecmp(current -> name, name) == 0) {
+        if (isPartialMatch(current -> name, name)) {
             return current;
         }
         current = current -> next;

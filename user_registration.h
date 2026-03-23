@@ -57,4 +57,6 @@ void updateUserLevel(UserNode* user);
 
 int getWeeklyReward(int level);
 
+bool isPartialMatch(const char* str, const char* substr);
+
 #endif 

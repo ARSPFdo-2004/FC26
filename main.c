@@ -304,6 +304,11 @@ static void inventoryMenu(UserNode* user) {
             }
         } else if (choice == 5) {
             
+            if (user->inventory->count <= 11) {
+                printf("You must have more than 11 players in your inventory to sell.\n");
+                continue;
+            }
+
             displayInventory(user -> inventory);
             printf("Enter player name to sell: ");
             readLine(input, sizeof(input));
@@ -314,8 +319,8 @@ static void inventoryMenu(UserNode* user) {
                 continue;
             }
 
-            if (isPlayerInSquad(user->squad, input)) {
-                printf("Cannot sell '%s' because they are currently selected in your squad.\n", input);
+            if (isPlayerInSquad(user->squad, found->name)) {
+                printf("Cannot sell '%s' because they are currently selected in your LineUp.\n", found->name);
                 continue;
             }
 
@@ -330,14 +335,14 @@ static void inventoryMenu(UserNode* user) {
                 continue;
             }
 
-            printf("Confirm sell '%s' for %d coins? (1=Yes/0=No): ", input, price);
+            printf("Confirm sell '%s' for %d coins? (1=Yes/0=No): ", found->name, price);
             int confirm;
             if (scanf("%d", &confirm) != 1) { confirm = 0; clearInput(); }
             clearInput();
 
             if (confirm == 1) {
                 
-                InventoryNode* removed = removePlayerByName(user -> inventory, input);
+                InventoryNode* removed = removePlayerByName(user -> inventory, found->name);
                 if (removed != NULL) {
                     
                     addToMarketplace(&g_market, removed -> name, removed -> type,
@@ -362,6 +367,7 @@ static void squadMenu(UserNode* user) {
         printf("1. LineUp\n");
         printf("2. Auto\n");
         printf("3. Replace Player\n");
+        printf("4. Swap Players\n");
         printf("0. Back\n");
         printf("Choice: ");
         if (scanf("%d", &choice) != 1) { choice = 0; clearInput(); }
@@ -380,6 +386,13 @@ static void squadMenu(UserNode* user) {
             printf("Enter new player name from inventory: ");
             readLine(new_name, sizeof(new_name));
             replacePlayer(user -> squad, user -> inventory, existing, new_name);
+        } else if (choice == 4) {
+            displaySquad(user -> squad);
+            printf("Enter first player name to swap: ");
+            readLine(existing, sizeof(existing));
+            printf("Enter second player name to swap: ");
+            readLine(new_name, sizeof(new_name));
+            swapPlayersInSquad(user -> squad, existing, new_name);
         } else {
             printf("Invalid choice.\n");
         }

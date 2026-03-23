@@ -175,3 +175,14 @@ int getWeeklyReward(int level) {
     }
     return WEEKLY_REWARDS[level];
 }
+
+#include <ctype.h>
+bool isPartialMatch(const char* str, const char* substr) {
+    if (!str || !substr) return false;
+    char lowerStr[150], lowerSub[150];
+    strncpy(lowerStr, str, 149); lowerStr[149]='\0';
+    strncpy(lowerSub, substr, 149); lowerSub[149]='\0';
+    for(int i=0; lowerStr[i]; i++) lowerStr[i] = tolower((unsigned char)lowerStr[i]);
+    for(int i=0; lowerSub[i]; i++) lowerSub[i] = tolower((unsigned char)lowerSub[i]);
+    return strstr(lowerStr, lowerSub) != NULL;
+}
