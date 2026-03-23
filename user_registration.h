@@ -15,6 +15,7 @@ typedef struct MatchStack MatchStack;
 
 typedef struct UserNode {
     char name[MAX_NAME_LEN];
+    char password[MAX_NAME_LEN];
     int id;
     int level;        
     int coins;
@@ -40,7 +41,7 @@ void initRegistry(UserRegistry* registry);
 
 int newIDProvider(UserRegistry* registry);
 
-UserNode* addUser(UserRegistry* registry, const char* name);
+UserNode* addUser(UserRegistry* registry, const char* name, const char* password);
 
 void deleteAccount(UserRegistry* registry, UserNode* node);
 

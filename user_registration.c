@@ -23,11 +23,11 @@ int newIDProvider(UserRegistry* registry) {
     return registry -> user_count + 1;
 }
 
-UserNode* addUser(UserRegistry* registry, const char* name) {
+UserNode* addUser(UserRegistry* registry, const char* name, const char* password) {
     
     UserNode* check = registry -> head;
     while (check != NULL) {
-        if (strcasecmp(check -> name, name) == 0) {
+        if (strcmp(check -> name, name) == 0) {
             printf("User '%s' already exists.\n", name);
             return NULL;
         }
@@ -42,6 +42,8 @@ UserNode* addUser(UserRegistry* registry, const char* name) {
 
     strncpy(newNode -> name, name, MAX_NAME_LEN - 1);
     newNode -> name[MAX_NAME_LEN - 1] = '\0';
+    strncpy(newNode -> password, password, MAX_NAME_LEN - 1);
+    newNode -> password[MAX_NAME_LEN - 1] = '\0';
     newNode -> id           = newIDProvider(registry);
     newNode -> level        = 0;    
     newNode -> coins        = 5000; 
@@ -131,7 +133,7 @@ UserNode* findUserByID(UserRegistry* registry, int id) {
 UserNode* findUserByName(UserRegistry* registry, const char* name) {
     UserNode* current = registry -> head;
     while (current != NULL) {
-        if (strcasecmp(current -> name, name) == 0) {
+        if (strcmp(current -> name, name) == 0) {
             return current;
         }
         current = current -> next;
