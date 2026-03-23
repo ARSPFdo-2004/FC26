@@ -42,4 +42,6 @@ void freeMarketplace(Marketplace* market);
 
 void seedMarketplace(Marketplace* market);
 
-#endif 
+bool searchMarketBasicOptions(Marketplace* market, int min_rating, int max_rating);
+#endif
+
