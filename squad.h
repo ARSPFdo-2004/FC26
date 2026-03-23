@@ -35,4 +35,6 @@ bool isPlayerInSquad(Squad* squad, const char* name);
 
 void swapPlayersInSquad(Squad* squad, const char* name1, const char* name2);
 
+void replacePlayer(Squad* squad, PlayerInventory* inv, const char* existing_name, const char* new_name);
+
 #endif 
