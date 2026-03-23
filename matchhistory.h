@@ -52,6 +52,8 @@ void pushMatch(MatchStack* stack, const char* opponent,
                int my_assists, int opp_assists,
                int my_fouls, int opp_fouls,
                int my_offsides, int opp_offsides);
+void displayMatchHistory(MatchStack* stack);
+
 float getWinPercentage(MatchStack* stack);
 
 float getWeeklyWinPercentage(MatchStack* stack);

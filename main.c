@@ -246,8 +246,12 @@ static void simulateMatch(UserNode* u1, UserNode* u2) {
 
     int shots1 = goals1 + (rand() % 6);
     int shots2 = goals2 + (rand() % 6);
+    int assists1 = goals1 > 0 ? (rand() % goals1) : 0;
+    int assists2 = goals2 > 0 ? (rand() % goals2) : 0;
     int fouls1 = rand() % 6;
     int fouls2 = rand() % 6;
+    int offsides1 = rand() % 4;
+    int offsides2 = rand() % 4;
     int yellow1 = rand() % 3;
     int yellow2 = rand() % 3;
     int red1 = (rand() % 10) == 0 ? 1 : 0;
@@ -256,12 +260,12 @@ static void simulateMatch(UserNode* u1, UserNode* u2) {
     printf("\n=========================================\n");
     printf("               SCORECARD                 \n");
     printf("=========================================\n");
-    printf("%15s  %2d - %-2d  %-15s\n", u1->name, goals1, goals2, u2->name);
+    printf("%15s  %2d - %-2d  %-15s\n", u1->name, goals1, goals2, u2->name);    
     printf("-----------------------------------------\n");
     printf("%15d   Shots   %-15d\n", shots1, shots2);
+    printf("%15d  Assists  %-15d\n", assists1, assists2);
     printf("%15d   Fouls   %-15d\n", fouls1, fouls2);
-    printf("%15d  Yellows  %-15d\n", yellow1, yellow2);
-    printf("%15d   Reds    %-15d\n", red1, red2);
+    printf("%15d Offsides  %-15d\n", offsides1, offsides2);
     printf("=========================================\n");
 
     char result1, result2;
@@ -289,8 +293,12 @@ static void simulateMatch(UserNode* u1, UserNode* u2) {
     printf("%s earned %d coins. %s earned %d coins.\n",
            u1 -> name, coins1, u2 -> name, coins2);
 
-    pushMatch(u1 -> match_history, u2 -> name, result1, coins1, g_current_week);
-    pushMatch(u2 -> match_history, u1 -> name, result2, coins2, g_current_week);
+    pushMatch(u1 -> match_history, u2 -> name, result1, coins1, g_current_week,
+              goals1, goals2, shots1, shots2, assists1, assists2,
+              fouls1, fouls2, offsides1, offsides2);
+    pushMatch(u2 -> match_history, u1 -> name, result2, coins2, g_current_week,
+              goals2, goals1, shots2, shots1, assists2, assists1,
+              fouls2, fouls1, offsides2, offsides1);
 
     updateUserLevel(u1);
     updateUserLevel(u2);
