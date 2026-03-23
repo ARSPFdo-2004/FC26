@@ -434,7 +434,7 @@ static void marketplaceMenu(UserNode* user) {
             if(scanf("%d", &max_r) != 1) { max_r = 999; clearInput(); }
             clearInput();
 
-            bool found_any = searchMarketBasicOptions(&g_market, NULL, NULL, min_r, max_r);
+            bool found_any = searchMarketBasicOptions(&g_market, min_r, max_r);
             if (!found_any) {
                 printf("No players matching the above criteria found\n");
                 continue;

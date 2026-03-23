@@ -194,3 +194,26 @@ void freeMarketplace(Marketplace* market) {
     market -> head  = NULL;
     market -> count = 0;
 }
+bool searchMarketBasicOptions(Marketplace* market, int min_rating, int max_rating) {
+    if (market->head == NULL) {
+        return false;
+    }
+
+    bool found = false;
+    MarketNode* current = market->head;
+
+    printf("\n%-25s %-5s %-7s %-8s %-10s\n", "Name", "Type", "Rating", "Price", "Seller ID");
+    printf("%-25s %-5s %-7s %-8s %-10s\n", "-------------------------", "-----", "-------", "--------", "----------");
+
+    for (int i = 0; i < market->count; i++) {
+        if (current->rating >= min_rating && current->rating <= max_rating) {
+            printf("%-25s %-5s %-7d %-8d %-10d\n",
+                   current->name, current->type,
+                   current->rating, current->price, current->seller_id);
+            found = true;
+        }
+        current = current->next;
+    }
+    printf("\n");
+    return found;
+}
