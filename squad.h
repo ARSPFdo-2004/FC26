@@ -31,8 +31,8 @@ void replacePlayer(Squad* squad, PlayerInventory* inv,
 
 void displaySquad(Squad* squad);
 
-void findBestLineup(Squad* squad, PlayerInventory* inv);
-
 int getSquadAverageRating(Squad* squad);
+
+bool isPlayerInSquad(Squad* squad, const char* name);
 
 #endif 

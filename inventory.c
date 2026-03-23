@@ -81,15 +81,15 @@ void searchInventoryByType(PlayerInventory* inv, const char* type) {
     bool found = false;
     InventoryNode* current = inv -> head;
 
-    printf("\n%-25s %-5s %-7s %-8s\n", "Name", "Type", "Rating", "Price");
-    printf("%-25s %-5s %-7s %-8s\n",
-           "-------------------------", "-----", "-------", "--------");
+    printf("\n%-25s %-5s %-7s\n", "Name", "Type", "Rating");
+    printf("%-25s %-5s %-7s\n",
+           "-------------------------", "-----", "-------");
 
     while (current != NULL) {
         if (strcasecmp(current -> type, type) == 0) {
-            printf("%-25s %-5s %-7d %-8d\n",
+            printf("%-25s %-5s %-7d\n",
                    current -> name, current -> type,
-                   current -> rating, current -> price);
+                   current -> rating);
             found = true;
         }
         current = current -> next;
@@ -105,15 +105,15 @@ void searchInventoryByRating(PlayerInventory* inv, int min, int max) {
     bool found = false;
     InventoryNode* current = inv -> head;
 
-    printf("\n%-25s %-5s %-7s %-8s\n", "Name", "Type", "Rating", "Price");
-    printf("%-25s %-5s %-7s %-8s\n",
-           "-------------------------", "-----", "-------", "--------");
+    printf("\n%-25s %-5s %-7s\n", "Name", "Type", "Rating");
+    printf("%-25s %-5s %-7s\n",
+           "-------------------------", "-----", "-------");
 
     while (current != NULL) {
         if (current -> rating >= min && current -> rating <= max) {
-            printf("%-25s %-5s %-7d %-8d\n",
+            printf("%-25s %-5s %-7d\n",
                    current -> name, current -> type,
-                   current -> rating, current -> price);
+                   current -> rating);
             found = true;
         }
         current = current -> next;
@@ -131,17 +131,17 @@ void displayInventory(PlayerInventory* inv) {
         return;
     }
 
-    printf("\n%-3s %-25s %-5s %-7s %-8s\n",
-           "#", "Name", "Type", "Rating", "Price");
-    printf("%-3s %-25s %-5s %-7s %-8s\n",
-           "---", "-------------------------", "-----", "-------", "--------");
+    printf("\n%-3s %-25s %-5s %-7s\n",
+           "#", "Name", "Type", "Rating");
+    printf("%-3s %-25s %-5s %-7s\n",
+           "---", "-------------------------", "-----", "-------");
 
     int i = 1;
     InventoryNode* current = inv -> head;
     while (current != NULL) {
-        printf("%-3d %-25s %-5s %-7d %-8d\n",
+        printf("%-3d %-25s %-5s %-7d\n",
                i, current -> name, current -> type,
-               current -> rating, current -> price);
+               current -> rating);
         current = current -> next;
         i++;
     }
@@ -149,42 +149,42 @@ void displayInventory(PlayerInventory* inv) {
 }
 
 void giveInitialPlayers(PlayerInventory* inv, int user_id) {
-    
-    char name[MAX_NAME_LEN];
-    int ratings[11] = {62, 65, 61, 67, 63, 60, 68, 64, 66, 61, 63};
+    const char* fw_names[] = {"Lionel Messi", "Cristiano Ronaldo", "Kylian Mbappe", "Erling Haaland", "Neymar Jr", "Mohamed Salah", "Harry Kane", "Vinicius Junior", "Lautaro Martinez", "Marcus Rashford"};
+    const char* mf_names[] = {"Kevin De Bruyne", "Luka Modric", "Toni Kroos", "Bruno Fernandes", "Pedri", "Jude Bellingham", "Bernardo Silva", "Declan Rice", "Frenkie De Jong", "Rodri"};
+    const char* df_names[] = {"Joao Cancelo", "Kyle Walker", "Trent Alexander Arnold", "Virgil Van Dijk", "Ruben Dias", "Antonio Rudiger", "Kalidou Koulibaly", "Eder Militao", "Marquinhos", "Achraf Hakimi", "Alphonso Davies", "Andrew Robertson", "Reece James", "Dani Carvajal", "Milan Skriniar", "Mats Hummels", "Aymeric Laporte", "Jules Kounde", "Alessandro Bastoni", "Pau Torres"};
+    const char* gk_names[] = {"Emiliano Martinez", "Thibaut Courtois", "Ederson Moraes", "Alisson Becker", "Mike Maignan", "Gianluigi Donnarumma", "Andre Onana", "Keylor Navas", "Wojciech Szczesny"};
 
-    snprintf(name, sizeof(name), "FW1_U%d", user_id);
-    addPlayer(inv, name, "FW", ratings[0], 500);
+    int fw_count = 10, mf_count = 10, df_count = 20, gk_count = 9;
 
-    snprintf(name, sizeof(name), "FW2_U%d", user_id);
-    addPlayer(inv, name, "FW", ratings[1], 500);
+    bool fw_picked[10] = {false};
+    bool mf_picked[10] = {false};
+    bool df_picked[20] = {false};
+    bool gk_picked[9]  = {false};
 
-    snprintf(name, sizeof(name), "FW3_U%d", user_id);
-    addPlayer(inv, name, "FW", ratings[2], 500);
+    for (int i = 0; i < 3; i++) {
+        int idx;
+        do { idx = rand() % fw_count; } while (fw_picked[idx]);
+        fw_picked[idx] = true;
+        addPlayer(inv, fw_names[idx], "FW", 60 + rand() % 10, 500);
+    }
 
-    snprintf(name, sizeof(name), "MF1_U%d", user_id);
-    addPlayer(inv, name, "MF", ratings[3], 500);
+    for (int i = 0; i < 3; i++) {
+        int idx;
+        do { idx = rand() % mf_count; } while (mf_picked[idx]);
+        mf_picked[idx] = true;
+        addPlayer(inv, mf_names[idx], "MF", 60 + rand() % 10, 500);
+    }
 
-    snprintf(name, sizeof(name), "MF2_U%d", user_id);
-    addPlayer(inv, name, "MF", ratings[4], 500);
+    for (int i = 0; i < 4; i++) {
+        int idx;
+        do { idx = rand() % df_count; } while (df_picked[idx]);
+        df_picked[idx] = true;
+        addPlayer(inv, df_names[idx], "DF", 60 + rand() % 10, 500);
+    }
 
-    snprintf(name, sizeof(name), "MF3_U%d", user_id);
-    addPlayer(inv, name, "MF", ratings[5], 500);
-
-    snprintf(name, sizeof(name), "DF1_U%d", user_id);
-    addPlayer(inv, name, "DF", ratings[6], 500);
-
-    snprintf(name, sizeof(name), "DF2_U%d", user_id);
-    addPlayer(inv, name, "DF", ratings[7], 500);
-
-    snprintf(name, sizeof(name), "DF3_U%d", user_id);
-    addPlayer(inv, name, "DF", ratings[8], 500);
-
-    snprintf(name, sizeof(name), "DF4_U%d", user_id);
-    addPlayer(inv, name, "DF", ratings[9], 500);
-
-    snprintf(name, sizeof(name), "GK1_U%d", user_id);
-    addPlayer(inv, name, "GK", ratings[10], 500);
+    int idx = rand() % gk_count;
+    gk_picked[idx] = true;
+    addPlayer(inv, gk_names[idx], "GK", 60 + rand() % 10, 500);
 }
 
 void freeInventory(PlayerInventory* inv) {

@@ -269,7 +269,8 @@ static void inventoryMenu(UserNode* user) {
         printf("1. View Inventory\n");
         printf("2. Search by Type\n");
         printf("3. Search by Rating Range\n");
-        printf("4. Sell Player (move to Marketplace)\n");
+        printf("4. Search by Name\n");
+        printf("5. Sell Player\n");
         printf("0. Back\n");
         printf("Choice: ");
         if (scanf("%d", &choice) != 1) { choice = 0; clearInput(); }
@@ -292,6 +293,16 @@ static void inventoryMenu(UserNode* user) {
             clearInput();
             searchInventoryByRating(user -> inventory, min_r, max_r);
         } else if (choice == 4) {
+            printf("Enter player name to search: ");
+            readLine(input, sizeof(input));
+            InventoryNode* found = searchInventoryByName(user -> inventory, input);
+            if (found != NULL) {
+                printf("\nPlayer found: %s | Type: %s | Rating: %d\n\n",
+                       found->name, found->type, found->rating);
+            } else {
+                printf("Player '%s' not found in inventory.\n", input);
+            }
+        } else if (choice == 5) {
             
             displayInventory(user -> inventory);
             printf("Enter player name to sell: ");
@@ -300,6 +311,11 @@ static void inventoryMenu(UserNode* user) {
             InventoryNode* found = searchInventoryByName(user -> inventory, input);
             if (found == NULL) {
                 printf("Player '%s' not found in inventory.\n", input);
+                continue;
+            }
+
+            if (isPlayerInSquad(user->squad, input)) {
+                printf("Cannot sell '%s' because they are currently selected in your squad.\n", input);
                 continue;
             }
 
@@ -343,10 +359,9 @@ static void squadMenu(UserNode* user) {
 
     while (true) {
         printf("\n--- Squad Menu (%s) ---\n", user -> name);
-        printf("1. View Squad\n");
-        printf("2. Auto-Select Best Squad\n");
+        printf("1. LineUp\n");
+        printf("2. Auto\n");
         printf("3. Replace Player\n");
-        printf("4. Find Best Lineup\n");
         printf("0. Back\n");
         printf("Choice: ");
         if (scanf("%d", &choice) != 1) { choice = 0; clearInput(); }
@@ -365,8 +380,6 @@ static void squadMenu(UserNode* user) {
             printf("Enter new player name from inventory: ");
             readLine(new_name, sizeof(new_name));
             replacePlayer(user -> squad, user -> inventory, existing, new_name);
-        } else if (choice == 4) {
-            findBestLineup(user -> squad, user -> inventory);
         } else {
             printf("Invalid choice.\n");
         }

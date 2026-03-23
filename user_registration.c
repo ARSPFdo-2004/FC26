@@ -46,7 +46,7 @@ UserNode* addUser(UserRegistry* registry, const char* name, const char* password
     newNode -> password[MAX_NAME_LEN - 1] = '\0';
     newNode -> id           = newIDProvider(registry);
     newNode -> level        = 0;    
-    newNode -> coins        = 5000; 
+    newNode -> coins        = 15000; 
     newNode -> total_wins   = 0;
     newNode -> total_losses = 0;
     newNode -> total_draws  = 0;

@@ -95,6 +95,11 @@ void replacePlayer(Squad* squad, PlayerInventory* inv,
         return;
     }
 
+    if (isPlayerInSquad(squad, new_player->name) && strcasecmp(existing_name, new_player->name) != 0) {
+        printf("Player '%s' is already in the squad!\n", new_player->name);
+        return;
+    }
+
     strncpy(squad -> slots[slot_idx].player_name,
             new_player -> name, MAX_NAME_LEN - 1);
     squad -> slots[slot_idx].player_name[MAX_NAME_LEN - 1] = '\0';
@@ -131,10 +136,6 @@ void displaySquad(Squad* squad) {
     printf("\nAverage Squad Rating: %d\n\n", getSquadAverageRating(squad));
 }
 
-void findBestLineup(Squad* squad, PlayerInventory* inv) {
-    printf("\nBuilding best lineup from inventory...\n");
-    autoSelectBestSquad(squad, inv);
-}
 
 int getSquadAverageRating(Squad* squad) {
     int total  = 0;
@@ -152,4 +153,13 @@ int getSquadAverageRating(Squad* squad) {
         return 0;
     }
     return total / filled;
+}
+
+bool isPlayerInSquad(Squad* squad, const char* name) {
+    for (int i = 0; i < SQUAD_SIZE; i++) {
+        if (squad->slots[i].is_filled && strcasecmp(squad->slots[i].player_name, name) == 0) {
+            return true;
+        }
+    }
+    return false;
 }
