@@ -25,19 +25,44 @@ InventoryNode* createInventoryNode(const char* name, const char* type,
     return node;
 }
 
-void addPlayer(PlayerInventory* inv, const char* name, const char* type,
-               int rating, int price) {
-    InventoryNode* node = createInventoryNode(name, type, rating, price);
+static int getTypeOrder(const char* t) {
+    if(strcmp(t, "FW")==0) return 1;
+    if(strcmp(t, "MF")==0) return 2;
+    if(strcmp(t, "DF")==0) return 3;
+    if(strcmp(t, "GK")==0) return 4;
+    return 5;
+}
 
-    if (inv -> head == NULL) {
-        inv -> head = node;
-        inv -> tail = node;
-    } else {
-        node -> prev       = inv -> tail;
-        inv -> tail->next  = node;
-        inv -> tail        = node;
+void addPlayer(PlayerInventory* inv, const char* name, const char* type,        
+               int rating, int price) {
+    InventoryNode* node = createInventoryNode(name, type, rating, price);       
+
+    if (inv->head == NULL) {
+        inv->head = node;
+        inv->tail = node;
+        inv->count++;
+        return;
     }
-    inv -> count++;
+    
+    InventoryNode* curr = inv->head;
+    while(curr != NULL) {
+        int orderNew = getTypeOrder(type);
+        int orderCurr = getTypeOrder(curr->type);
+        if(orderNew < orderCurr || (orderNew == orderCurr && rating > curr->rating)) {
+            node->next = curr;
+            node->prev = curr->prev;
+            if(curr->prev != NULL) { curr->prev->next = node; } else { inv->head = node; }
+            curr->prev = node;
+            inv->count++;
+            return;
+        }
+        curr = curr->next;
+    }
+    
+    node->prev = inv->tail;
+    inv->tail->next = node;
+    inv->tail = node;
+    inv->count++;
 }
 
 InventoryNode* removePlayerByName(PlayerInventory* inv, const char* name) {

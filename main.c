@@ -366,8 +366,7 @@ static void squadMenu(UserNode* user) {
         printf("\n--- Squad Menu (%s) ---\n", user -> name);
         printf("1. LineUp\n");
         printf("2. Auto\n");
-        printf("3. Replace Player\n");
-        printf("4. Swap Players\n");
+        printf("3. Swap Players\n");
         printf("0. Back\n");
         printf("Choice: ");
         if (scanf("%d", &choice) != 1) { choice = 0; clearInput(); }
@@ -380,13 +379,6 @@ static void squadMenu(UserNode* user) {
         } else if (choice == 2) {
             autoSelectBestSquad(user -> squad, user -> inventory);
         } else if (choice == 3) {
-            displaySquad(user -> squad);
-            printf("Enter existing player name in squad: ");
-            readLine(existing, sizeof(existing));
-            printf("Enter new player name from inventory: ");
-            readLine(new_name, sizeof(new_name));
-            replacePlayer(user -> squad, user -> inventory, existing, new_name);
-        } else if (choice == 4) {
             displaySquad(user -> squad);
             printf("Enter first player name to swap: ");
             readLine(existing, sizeof(existing));
@@ -402,14 +394,12 @@ static void squadMenu(UserNode* user) {
 static void marketplaceMenu(UserNode* user) {
     int choice;
     char input[MAX_NAME_LEN];
+    int min_r, max_r;
 
     while (true) {
-        printf("\n--- Marketplace Menu (%s | Coins: %d) ---\n",
-               user -> name, user -> coins);
+        printf("\n--- Marketplace Menu ---\n");
         printf("1. View All Listings\n");
-        printf("2. Search by Name\n");
-        printf("3. Search by Type\n");
-        printf("4. Buy Player\n");
+        printf("2. Search Market (Budget/Rating)\n");
         printf("0. Back\n");
         printf("Choice: ");
         if (scanf("%d", &choice) != 1) { choice = 0; clearInput(); }
@@ -419,71 +409,53 @@ static void marketplaceMenu(UserNode* user) {
             break;
         } else if (choice == 1) {
             displayMarketplace(&g_market);
-        } else if (choice == 2) {
-            printf("Enter player name: ");
+            printf("\nEnter Player Name to buy (or 'cancel'): ");
             readLine(input, sizeof(input));
-            MarketNode* found = searchMarketByName(&g_market, input);
-            if (found == NULL) {
-                printf("Player '%s' not found.\n", input);
-            } else {
-                printf("\nFound: %s | Type: %s | Rating: %d | Price: %d | Seller ID: %d\n",
-                       found -> name, found -> type,
-                       found -> rating, found -> price, found -> seller_id);
-            }
-        } else if (choice == 3) {
-            printf("Enter type (FW/MF/DF/GK): ");
-            readLine(input, sizeof(input));
-            searchMarketByType(&g_market, input);
-        } else if (choice == 4) {
-            displayMarketplace(&g_market);
-            printf("Enter player name to buy: ");
-            readLine(input, sizeof(input));
+            if (strcmp(input, "cancel") == 0) continue;
 
             MarketNode* card = searchMarketByName(&g_market, input);
             if (card == NULL) {
-                printf("Player '%s' not found in marketplace.\n", input);
-                continue;
+                printf("Player not found in marketplace.\n");
+            } else {
+                if (user -> coins >= card -> price) {
+                    user -> coins -= card -> price;
+                    addPlayer(user -> inventory, card -> name, card -> type, card -> rating, card -> price); 
+                    removeFromMarketplace(&g_market, input);
+                    printf("Successfully bought %s for %d coins!\n",
+                           card->name, card -> price);
+                } else {
+                    printf("Not enough coins.\n");
+                }
             }
-
-            if (card -> seller_id == user -> id) {
-                printf("You cannot buy your own listing.\n");
-                continue;
-            }
-
-            if (user -> coins < card -> price) {
-                printf("Insufficient coins. You have %d, need %d.\n",
-                       user -> coins, card -> price);
-                continue;
-            }
-
-            printf("Buy '%s' (Type:%s Rating:%d) for %d coins? (1=Yes/0=No): ",
-                   card -> name, card -> type, card -> rating, card -> price);
-            int confirm;
-            if (scanf("%d", &confirm) != 1) { confirm = 0; clearInput(); }
+        } else if (choice == 2) {
+            printf("Min Rating (0 for no limit): ");
+            if(scanf("%d", &min_r) != 1) { min_r = 0; clearInput(); }
+            printf("Max Rating (999 for no limit): ");
+            if(scanf("%d", &max_r) != 1) { max_r = 999; clearInput(); }
             clearInput();
 
-            if (confirm == 1) {
-                int price     = card -> price;
-                int seller_id = card -> seller_id;
+            bool found_any = searchMarketBasicOptions(&g_market, NULL, NULL, min_r, max_r);
+            if (!found_any) {
+                printf("No players matching the above criteria found\n");
+                continue;
+            }
 
-                MarketNode* bought = removeFromMarketplace(&g_market, input);
-                if (bought != NULL) {
-                    
-                    addPlayer(user -> inventory, bought -> name,
-                              bought -> type, bought -> rating, bought -> price);
+            printf("Enter Player Name to buy (or 'cancel'): ");
+            readLine(input, sizeof(input));
+            if (strcmp(input, "cancel") == 0) continue;
 
-                    user -> coins -= price;
-
-                    UserNode* seller = findUserByID(&g_registry, seller_id);
-                    if (seller != NULL) {
-                        seller -> coins += price;
-                        printf("Seller %s received %d coins.\n",
-                               seller -> name, price);
-                    }
-
-                    printf("Purchased '%s' for %d coins. Your balance: %d\n",
-                           bought -> name, price, user -> coins);
-                    free(bought);
+            MarketNode* card = searchMarketByName(&g_market, input);
+            if (card == NULL) {
+                printf("Player not found in marketplace.\n");
+            } else {
+                if (user -> coins >= card -> price) {
+                    user -> coins -= card -> price;
+                    addPlayer(user -> inventory, card -> name, card -> type, card -> rating, card -> price); 
+                    removeFromMarketplace(&g_market, input);
+                    printf("Successfully bought %s for %d coins!\n",
+                           card->name, card -> price);
+                } else {
+                    printf("Not enough coins.\n");
                 }
             }
         } else {
