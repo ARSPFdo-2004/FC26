@@ -27,9 +27,6 @@ void initSquad(Squad* squad);
 
 void autoSelectBestSquad(Squad* squad, PlayerInventory* inv);
 
-void replacePlayer(Squad* squad, PlayerInventory* inv,
-                   const char* existing_name, const char* new_name);
-
 void displaySquad(Squad* squad);
 
 int getSquadAverageRating(Squad* squad);
