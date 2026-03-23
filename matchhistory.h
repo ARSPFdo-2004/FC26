@@ -16,6 +16,17 @@ typedef struct MatchRecord {
     char result;        
     int  coins_earned;
     int  week;
+    int  match_number;
+    int  my_goals;
+    int  opp_goals;
+    int  my_shots;
+    int  opp_shots;
+    int  my_assists;
+    int  opp_assists;
+    int  my_fouls;
+    int  opp_fouls;
+    int  my_offsides;
+    int  opp_offsides;
     struct MatchRecord* next;
 } MatchRecord;
 
@@ -35,12 +46,12 @@ void initMatchStack(MatchStack* stack);
 bool isStackEmpty(MatchStack* stack);
 
 void pushMatch(MatchStack* stack, const char* opponent,
-               char result, int coins, int week);
-
-void popMatch(MatchStack* stack);
-
-void displayMatchHistory(MatchStack* stack);
-
+               char result, int coins, int week,
+               int my_goals, int opp_goals,
+               int my_shots, int opp_shots,
+               int my_assists, int opp_assists,
+               int my_fouls, int opp_fouls,
+               int my_offsides, int opp_offsides);
 float getWinPercentage(MatchStack* stack);
 
 float getWeeklyWinPercentage(MatchStack* stack);

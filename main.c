@@ -53,7 +53,28 @@ static void initUserModules(UserNode* user) {
 
 static void addMatchRecord(UserNode* user, const char* opponent,
                            char result, int coins, int week) {
-    pushMatch(user -> match_history, opponent, result, coins, week);
+    int goals_for = 0, goals_against = 0;
+    if (result == RESULT_WIN) {
+        goals_for = rand() % 4 + 1;
+        goals_against = rand() % goals_for;
+    } else if (result == RESULT_LOSS) {
+        goals_against = rand() % 4 + 1;
+        goals_for = rand() % goals_against;
+    } else {
+        goals_for = goals_against = rand() % 3;
+    }
+    int shots = goals_for + rand() % 5;
+    int opp_shots = goals_against + rand() % 5;
+    int assists = (goals_for > 0) ? rand() % goals_for : 0;
+    int opp_assists = (goals_against > 0) ? rand() % goals_against : 0;
+    int fouls = rand() % 6;
+    int opp_fouls = rand() % 6;
+    int offsides = rand() % 4;
+    int opp_offsides = rand() % 4;
+
+    pushMatch(user -> match_history, opponent, result, coins, week,
+              goals_for, goals_against, shots, opp_shots, assists, opp_assists,
+              fouls, opp_fouls, offsides, opp_offsides);
     user -> total_wins   = user -> match_history->total_wins;
     user -> total_losses = user -> match_history->total_losses;
     user -> total_draws  = user -> match_history->total_draws;
