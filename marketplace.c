@@ -2,19 +2,18 @@
 #include "user_registration.h"
 
 void initMarketplace(Marketplace* market) {
-    market -> head  = NULL;
-    market -> count = 0;
+    market->head = NULL;
+    market->count = 0;
 }
 
 void addToMarketplace(Marketplace* market, const char* name, const char* type,  
-                      int rating, int price, int seller_id) {
+                      int rating, int price) {
     MarketNode* node = (MarketNode *) malloc(sizeof(MarketNode));
     if (!node) return;
     strncpy(node->name, name, MAX_NAME_LEN - 1); node->name[MAX_NAME_LEN - 1] = '\0';
     strncpy(node->type, type, TYPE_LEN - 1); node->type[TYPE_LEN - 1] = '\0';
     node->rating = rating;
     node->price = price;
-    node->seller_id = seller_id;
     node->next = node->prev = NULL;
 
     if (market->head == NULL) {
@@ -23,7 +22,6 @@ void addToMarketplace(Marketplace* market, const char* name, const char* type,
         node->prev = node;
     } else {
         MarketNode* curr = market->head;
-        int first_rating = curr->rating;
         bool inserted = false;
         
         do {
@@ -51,76 +49,71 @@ void addToMarketplace(Marketplace* market, const char* name, const char* type,
 }
 
 MarketNode* removeFromMarketplace(Marketplace* market, const char* name) {
-    if (market -> head == NULL) {
+    if (market->head == NULL) {
         return NULL;
     }
 
-    MarketNode* current = market -> head;
-    int i;
+    MarketNode* current = market->head;
 
-    for (i = 0; i < market -> count; i++) {
-        if (strcasecmp(current -> name, name) == 0) {
-            if (market -> count == 1) {
-                
-                market -> head = NULL;
+    for (int i = 0; i < market->count; i++) {
+        if (strcasecmp(current->name, name) == 0) {
+            if (market->count == 1) {
+                market->head = NULL;
             } else {
-                current -> prev->next = current -> next;
-                current -> next->prev = current -> prev;
-                if (current == market -> head) {
-                    market -> head = current -> next;
+                current->prev->next = current->next;
+                current->next->prev = current->prev;
+                if (current == market->head) {
+                    market->head = current->next;
                 }
             }
-            current -> next = NULL;
-            current -> prev = NULL;
-            market -> count--;
+            current->next = NULL;
+            current->prev = NULL;
+            market->count--;
             return current;
         }
-        current = current -> next;
+        current = current->next;
     }
     return NULL;
 }
 
 MarketNode* searchMarketByName(Marketplace* market, const char* name) {
-    if (market -> head == NULL) {
+    if (market->head == NULL) {
         return NULL;
     }
 
-    MarketNode* current = market -> head;
-    int i;
+    MarketNode* current = market->head;
 
-    for (i = 0; i < market -> count; i++) {
-        if (isPartialMatch(current -> name, name)) {
+    for (int i = 0; i < market->count; i++) {
+        if (isPartialMatch(current->name, name)) {
             return current;
         }
-        current = current -> next;
+        current = current->next;
     }
     return NULL;
 }
 
 void searchMarketByType(Marketplace* market, const char* type) {
-    if (market -> head == NULL) {
+    if (market->head == NULL) {
         printf("Marketplace is empty.\n");
         return;
     }
 
     bool found = false;
-    MarketNode* current = market -> head;
-    int i;
+    MarketNode* current = market->head;
 
-    printf("\n%-25s %-5s %-7s %-8s %-10s\n",
-           "Name", "Type", "Rating", "Price", "Seller ID");
-    printf("%-25s %-5s %-7s %-8s %-10s\n",
-           "-------------------------", "-----", "-------",
-           "--------", "----------");
+    printf("\n%-25s %-5s %-7s %-8s\n",
+           "Name", "Type", "Rating", "Price");
+    printf("%-25s %-5s %-7s %-8s\n",
+           "-------------------------", "-----", "-------", "--------");
 
-    for (i = 0; i < market -> count; i++) {
-        if (strcasecmp(current -> type, type) == 0) {
-            printf("%-25s %-5s %-7d %-8d %-10d\n",
-                   current -> name, current -> type,
-                   current -> rating, current -> price, current -> seller_id);
+    for (int i = 0; i < market->count; i++) {
+        if (strcasecmp(current->type, type) == 0) {
+            printf("%-25s %-5s %-7d %-8d\n",
+                   current->name, current->type,
+                   current->rating, current->price);
             found = true;
         }
-        current = current -> next;
+        current = current->next;
     }
 
     if (!found) {
@@ -130,26 +123,24 @@ void searchMarketByType(Marketplace* market, const char* type) {
 }
 
 void displayMarketplace(Marketplace* market) {
-    if (market -> head == NULL) {
+    if (market->head == NULL) {
         printf("Marketplace is empty.\n");
         return;
     }
 
-    printf("\n%-3s %-25s %-5s %-7s %-8s %-10s\n",
-           "#", "Name", "Type", "Rating", "Price", "Seller ID");
-    printf("%-3s %-25s %-5s %-7s %-8s %-10s\n",
-           "---", "-------------------------", "-----",
-           "-------", "--------", "----------");
+    printf("\n%-3s %-25s %-5s %-7s %-8s\n",
+           "#", "Name", "Type", "Rating", "Price");
+    printf("%-3s %-25s %-5s %-7s %-8s\n",
+           "---", "-------------------------", "-----", "-------", "--------");
 
-    MarketNode* current = market -> head;
-    int i;
-    for (i = 0; i < market -> count; i++) {
-        printf("%-3d %-25s %-5s %-7d %-8d %-10d\n",
-               i + 1, current -> name, current -> type,
-               current -> rating, current -> price, current -> seller_id);
-        current = current -> next;
+    MarketNode* current = market->head;
+    for (int i = 0; i < market->count; i++) {
+        printf("%-3d %-25s %-5s %-7d %-8d\n",
+               i + 1, current->name, current->type,
+               current->rating, current->price);
+        current = current->next;
     }
-    printf("\nTotal listings: %d\n\n", market -> count);
+    printf("\nTotal listings: %d\n\n", market->count);
 }
 
 void seedMarketplace(Marketplace* market) {
@@ -182,75 +173,52 @@ void seedMarketplace(Marketplace* market) {
     // Generate GK variants
     for (int i = 0; i < 9; i++) {
         int r = 60 + rand() % 51;
-\nMarketNode* searchMarketByName(Marketplace* market, const char* name) {
-    if (market->head == NULL) return NULL;
-    MarketNode* current = market->head;
-    for (int i = 0; i < market->count; i++) {
-        if (strcmp(current->name, name) == 0) return current;
-        current = current->next;
-    }
-    return NULL;
-}
-MarketNode* removeFromMarketplace(Marketplace* market, const char* name) {
-    if (market->head == NULL) return NULL;
-    MarketNode* current = market->head;
-    for (int i = 0; i < market->count; i++) {
-        if (strcmp(current->name, name) == 0) {
-            if (market->count == 1) {
-                market->head = NULL;
-            } else {
-                current->prev->next = current->next;
-                current->next->prev = current->prev;
-                if (current == market->head) market->head = current->next;
-            }
-            market->count--;
-            return current;
-        }
-        current = current->next;
-    }
-    return NULL;
-}
         int p = 5000 + ((r - 60) * (r - 60) * 198);
         addToMarketplace(market, gk_names[i], "GK", r, p);
     }
 }
 
 void freeMarketplace(Marketplace* market) {
-    if (market -> head == NULL) {
+    if (market->head == NULL) {
         return;
     }
 
-    market -> head->prev -> next = NULL;
+    market->head->prev->next = NULL;
 
-    MarketNode* current = market -> head;
+    MarketNode* current = market->head;
     while (current != NULL) {
         MarketNode* temp = current;
-        current = current -> next;
+        current = current->next;
         free(temp);
     }
-    market -> head  = NULL;
-    market -> count = 0;
+    market->head = NULL;
+    market->count = 0;
 }
 
-bool searchMarketBasicOptions(Marketplace* market, int min_rating, int max_rating) {
+bool searchMarketAdvanced(Marketplace* market, const char* name, const char* type, int min_rating, int max_rating) {
     if (market->head == NULL) {
         printf("Marketplace is empty.\n");
         return false;
     }
     printf("\n--- Search Results ---\n");
-    printf("%-20s | %-4s | %-6s | %-6s | %s\n", "Name", "Type", "Rating", "Price", "Seller ID");
-    printf("-------------------------------------------------------------\n");
+    printf("%-20s | %-4s | %-6s | %-6s\n", "Name", "Type", "Rating", "Price");
+    printf("--------------------------------------------------\n");
+    
     MarketNode* curr = market->head;
     bool found = false;
-    while (curr != NULL) {
-        if (curr->rating >= min_rating && curr->rating <= max_rating) {
-            printf("%-20s | %-4s | %-6d | %-6d | %d\n", curr->name, curr->type, curr->rating, curr->price, curr->seller_id);
+    
+    for (int i = 0; i < market->count; i++) {
+        bool match = true;
+        if (curr->rating < min_rating || curr->rating > max_rating) match = false;
+        if (strlen(type) > 0 && strcasecmp(curr->type, type) != 0) match = false;
+        if (strlen(name) > 0 && !isPartialMatch(curr->name, name)) match = false;
+        
+        if (match) {
+            printf("%-20s | %-4s | %-6d | %-6d\n", curr->name, curr->type, curr->rating, curr->price);
             found = true;
         }
         curr = curr->next;
     }
-    if (!found) {
-        printf("No players matching the above criteria found.\n");
-    }
+    
     return found;
 }
