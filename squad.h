@@ -12,7 +12,7 @@
 #define MAX_NAME_LEN 50
 
 typedef struct SquadSlot {
-    char position_type[4];   
+    char position_type[4];
     char player_name[MAX_NAME_LEN];
     char native_type[4];
     int  player_rating;
@@ -33,8 +33,8 @@ int getSquadAverageRating(Squad* squad);
 
 bool isPlayerInSquad(Squad* squad, const char* name);
 
-void swapPlayersInSquad(Squad* squad, const char* name1, const char* name2);
+void swapPlayerCards(Squad* squad, PlayerInventory* inv, const char* name1, const char* name2);
 
-void replacePlayer(Squad* squad, PlayerInventory* inv, const char* existing_name, const char* new_name);
+void displayAllUserCards(Squad* squad, PlayerInventory* inv);
 
-#endif 
+#endif

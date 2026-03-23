@@ -207,40 +207,58 @@ static void seedPredefinedUsers(void) {
 static void simulateMatch(UserNode* u1, UserNode* u2) {
     int rating1 = getSquadAverageRating(u1 -> squad);
     int rating2 = getSquadAverageRating(u2 -> squad);
+    if (rating2 == 0) rating2 = rating1 + (rand() % 11) - 5; // Fallback for bots
 
     int r1 = rating1 + (rand() % 21) - 10;
     int r2 = rating2 + (rand() % 21) - 10;
 
-    printf("\n=== Match: %s (Rating~%d) vs %s (Rating~%d) ===\n",
-           u1 -> name, rating1, u2 -> name, rating2);
+    int goals1 = 0, goals2 = 0;
+    if (r1 > r2) {
+        goals1 = (rand() % 3) + 1;
+        goals2 = rand() % goals1;
+    } else if (r2 > r1) {
+        goals2 = (rand() % 3) + 1;
+        goals1 = rand() % goals2;
+    } else {
+        goals1 = goals2 = rand() % 3;
+    }
+
+    int shots1 = goals1 + (rand() % 6);
+    int shots2 = goals2 + (rand() % 6);
+    int fouls1 = rand() % 6;
+    int fouls2 = rand() % 6;
+    int yellow1 = rand() % 3;
+    int yellow2 = rand() % 3;
+    int red1 = (rand() % 10) == 0 ? 1 : 0;
+    int red2 = (rand() % 10) == 0 ? 1 : 0;
+
+    printf("\n=== SCORECARD ===\n");
+    printf("%-15s   %d - %d   %-15s\n", u1->name, goals1, goals2, u2->name);
+    printf("-----------------------------------------\n");
+    printf("%-15d   Shots   %-15d\n", shots1, shots2);
+    printf("%-15d   Fouls   %-15d\n", fouls1, fouls2);
+    printf("%-15d  Yellows  %-15d\n", yellow1, yellow2);
+    printf("%-15d   Reds    %-15d\n", red1, red2);
+    printf("=========================================\n");
 
     char result1, result2;
-    int  coins1, coins2;
+    int  coins1 = 0, coins2 = 0;
 
-    if (r1 > r2) {
-        result1 = RESULT_WIN;
-        result2 = RESULT_LOSS;
-        coins1  = 500;
-        coins2  = 0;
+    if (goals1 > goals2) {
+        result1 = RESULT_WIN; result2 = RESULT_LOSS;
+        coins1 = 500; coins2 = 0;
         printf("Result: %s WINS!\n", u1 -> name);
-        u1 -> total_wins++;
-        u2 -> total_losses++;
-    } else if (r2 > r1) {
-        result1 = RESULT_LOSS;
-        result2 = RESULT_WIN;
-        coins1  = 0;
-        coins2  = 500;
+        u1 -> total_wins++; u2 -> total_losses++;
+    } else if (goals2 > goals1) {
+        result1 = RESULT_LOSS; result2 = RESULT_WIN;
+        coins1 = 0; coins2 = 500;
         printf("Result: %s WINS!\n", u2 -> name);
-        u2 -> total_wins++;
-        u1 -> total_losses++;
+        u2 -> total_wins++; u1 -> total_losses++;
     } else {
-        result1 = RESULT_DRAW;
-        result2 = RESULT_DRAW;
-        coins1  = 250;
-        coins2  = 250;
+        result1 = RESULT_DRAW; result2 = RESULT_DRAW;
+        coins1 = 250; coins2 = 250;
         printf("Result: DRAW!\n");
-        u1 -> total_draws++;
-        u2 -> total_draws++;
+        u1 -> total_draws++; u2 -> total_draws++;
     }
 
     u1 -> coins += coins1;
@@ -346,7 +364,7 @@ static void inventoryMenu(UserNode* user) {
                 if (removed != NULL) {
                     
                     addToMarketplace(&g_market, removed -> name, removed -> type,
-                                     removed -> rating, price, user -> id);
+                                     removed -> rating, price);
                     printf("'%s' listed on marketplace for %d coins.\n",
                            removed -> name, price);
                     free(removed);
@@ -379,12 +397,12 @@ static void squadMenu(UserNode* user) {
         } else if (choice == 2) {
             autoSelectBestSquad(user -> squad, user -> inventory);
         } else if (choice == 3) {
-            displaySquad(user -> squad);
+            displayAllUserCards(user -> squad, user -> inventory);
             printf("Enter first player name to swap: ");
             readLine(existing, sizeof(existing));
             printf("Enter second player name to swap: ");
             readLine(new_name, sizeof(new_name));
-            swapPlayersInSquad(user -> squad, existing, new_name);
+            swapPlayerCards(user -> squad, user -> inventory, existing, new_name);
         } else {
             printf("Invalid choice.\n");
         }
@@ -394,12 +412,15 @@ static void squadMenu(UserNode* user) {
 static void marketplaceMenu(UserNode* user) {
     int choice;
     char input[MAX_NAME_LEN];
-    int min_r, max_r;
+    char type[TYPE_LEN];
+    int min_r, max_r, target_rating;
 
     while (true) {
         printf("\n--- Marketplace Menu ---\n");
-        printf("1. View All Listings\n");
-        printf("2. Search Market (Budget/Rating)\n");
+        printf("1. Purchase Player\n");
+        printf("2. Search by Rating range\n");
+        printf("3. Search by Rating range and Type\n");
+        printf("4. Search by Name, Rating range and Type\n");
         printf("0. Back\n");
         printf("Choice: ");
         if (scanf("%d", &choice) != 1) { choice = 0; clearInput(); }
@@ -407,55 +428,72 @@ static void marketplaceMenu(UserNode* user) {
 
         if (choice == 0) {
             break;
-        } else if (choice == 1) {
-            displayMarketplace(&g_market);
-            printf("\nEnter Player Name to buy (or 'cancel'): ");
-            readLine(input, sizeof(input));
-            if (strcmp(input, "cancel") == 0) continue;
+        } else if (choice >= 1 && choice <= 4) {
+            type[0] = '\0';
+            min_r = 0; max_r = 999;
+            input[0] = '\0';
 
-            MarketNode* card = searchMarketByName(&g_market, input);
-            if (card == NULL) {
-                printf("Player not found in marketplace.\n");
-            } else {
-                if (user -> coins >= card -> price) {
-                    user -> coins -= card -> price;
-                    addPlayer(user -> inventory, card -> name, card -> type, card -> rating, card -> price); 
-                    removeFromMarketplace(&g_market, input);
-                    printf("Successfully bought %s for %d coins!\n",
-                           card->name, card -> price);
-                } else {
-                    printf("Not enough coins.\n");
+            if (choice == 1 || choice == 3 || choice == 4) {
+                printf("Position/Type (FW/MF/DF/GK): ");
+                readLine(type, sizeof(type));
+            }
+            if (choice == 1 || choice == 2 || choice == 3 || choice == 4) {
+                printf("Min Rating (0 for no limit): ");
+                if (scanf("%d", &min_r) != 1) { min_r = 0; clearInput(); }
+                printf("Max Rating (999 for no limit): ");
+                if (scanf("%d", &max_r) != 1) { max_r = 999; clearInput(); }
+                clearInput();
+            }
+            if (choice == 4) {
+                printf("Name: ");
+                readLine(input, sizeof(input));
+            }
+
+            bool found = searchMarketAdvanced(&g_market, input, type, min_r, max_r);
+            
+            if (choice == 1) {
+                if (!found) {
+                    printf("No players matching the above criteria found\n");
+                    continue;
                 }
-            }
-        } else if (choice == 2) {
-            printf("Min Rating (0 for no limit): ");
-            if(scanf("%d", &min_r) != 1) { min_r = 0; clearInput(); }
-            printf("Max Rating (999 for no limit): ");
-            if(scanf("%d", &max_r) != 1) { max_r = 999; clearInput(); }
-            clearInput();
+                printf("Enter Player Name to purchase: ");
+                readLine(input, sizeof(input));
+                printf("Enter Player Rating: ");
+                if (scanf("%d", &target_rating) != 1) { target_rating = 0; clearInput(); }
+                clearInput();
 
-            bool found_any = searchMarketBasicOptions(&g_market, min_r, max_r);
-            if (!found_any) {
-                printf("No players matching the above criteria found\n");
-                continue;
-            }
+                MarketNode* curr = g_market.head;
+                MarketNode* card = NULL;
+                if (curr != NULL) {
+                    for (int i = 0; i < g_market.count; i++) {
+                        if (strcasecmp(curr->name, input) == 0 && curr->rating == target_rating && strcasecmp(curr->type, type) == 0) {
+                            card = curr; break;
+                        }
+                        curr = curr->next;
+                    }
+                }
 
-            printf("Enter Player Name to buy (or 'cancel'): ");
-            readLine(input, sizeof(input));
-            if (strcmp(input, "cancel") == 0) continue;
-
-            MarketNode* card = searchMarketByName(&g_market, input);
-            if (card == NULL) {
-                printf("Player not found in marketplace.\n");
-            } else {
-                if (user -> coins >= card -> price) {
-                    user -> coins -= card -> price;
-                    addPlayer(user -> inventory, card -> name, card -> type, card -> rating, card -> price); 
-                    removeFromMarketplace(&g_market, input);
-                    printf("Successfully bought %s for %d coins!\n",
-                           card->name, card -> price);
+                if (card == NULL) {
+                    printf("Player not found with given Name, Rating and Type.\n");
                 } else {
-                    printf("Not enough coins.\n");
+                    if (user->coins >= card->price) {
+                        user->coins -= card->price;
+                        addPlayer(user->inventory, card->name, card->type, card->rating, card->price);
+                        
+                        if (g_market.count == 1) {
+                            g_market.head = NULL;
+                        } else {
+                            card->prev->next = card->next;
+                            card->next->prev = card->prev;
+                            if (card == g_market.head) g_market.head = card->next;
+                        }
+                        g_market.count--;
+                        
+                        printf("Successfully bought %s for %d coins!\n", input, card->price);
+                        free(card);
+                    } else {
+                        printf("Not enough coins.\n");
+                    }
                 }
             }
         } else {
@@ -463,16 +501,13 @@ static void marketplaceMenu(UserNode* user) {
         }
     }
 }
-
 static void matchmakingMenu(UserNode* user) {
     int choice;
 
     while (true) {
         printf("\n--- Matchmaking Menu (%s | Level: %s) ---\n",
                user -> name, getLevelName(user -> level));
-        printf("1. Join Matchmaking Queue\n");
-        printf("2. View Queue\n");
-        printf("3. Process Matches (find opponent & play)\n");
+        printf("1. Find Opponent\n");
         printf("0. Back\n");
         printf("Choice: ");
         if (scanf("%d", &choice) != 1) { choice = 0; clearInput(); }
@@ -481,43 +516,40 @@ static void matchmakingMenu(UserNode* user) {
         if (choice == 0) {
             break;
         } else if (choice == 1) {
-            if (isUserInQueue(&g_matchQueue, user -> id)) {
-                printf("You are already in the queue.\n");
-            } else if (user -> squad == NULL ||
-                       getSquadAverageRating(user -> squad) == 0) {
-                printf("Please set up your squad before joining matchmaking.\n");
+            if (user -> squad == NULL || getSquadAverageRating(user -> squad) == 0) {
+                printf("Please set up your squad before finding an opponent.\n");
+                continue;
+            }
+
+            const char* botNames[3] = {"Player 1", "Player 2", "Player 3"};
+            for (int i = 0; i < 3; i++) {
+                UserNode* bot = findUserByName(&g_registry, botNames[i]);
+                if (bot == NULL) {
+                    bot = addUser(&g_registry, botNames[i], "botpass");
+                    initUserModules(bot);
+                }
+                if (!isUserInQueue(&g_matchQueue, bot->id)) {
+                    enqueueUser(&g_matchQueue, bot->id, user->level);
+                }
+            }
+
+            printf("Match Ongoing.....\n");
+            
+            if (!isUserInQueue(&g_matchQueue, user->id)) {
+                enqueueUser(&g_matchQueue, user->id, user->level);
+            }
+
+            int opp_id = findSameLevelOpponent(&g_matchQueue, user->id, user->level);
+            if (opp_id != -1) {
+                UserNode* opponent = findUserByID(&g_registry, opp_id);
+                removeFromQueue(&g_matchQueue, user->id);
+                removeFromQueue(&g_matchQueue, opp_id);
+                
+                printf("Match ended\n");
+                simulateMatch(user, opponent);
             } else {
-                enqueueUser(&g_matchQueue, user -> id, user -> level);
-                printf("Joined matchmaking queue. Position: %d\n",
-                       g_matchQueue.size);
+                printf("No opponent at your level found yet.\n");
             }
-        } else if (choice == 2) {
-            displayMatchQueue(&g_matchQueue);
-        } else if (choice == 3) {
-            if (!isUserInQueue(&g_matchQueue, user -> id)) {
-                printf("Join the queue first.\n");
-                continue;
-            }
-
-            int opp_id = findSameLevelOpponent(&g_matchQueue, user -> id,
-                                               user -> level);
-            if (opp_id == -1) {
-                printf("No opponent at your level (%s) found yet.\n",
-                       getLevelName(user -> level));
-                printf("Waiting in queue... (try again later)\n");
-                continue;
-            }
-
-            UserNode* opponent = findUserByID(&g_registry, opp_id);
-            if (opponent == NULL) {
-                printf("Opponent data not found.\n");
-                continue;
-            }
-
-            removeFromQueue(&g_matchQueue, user -> id);
-            removeFromQueue(&g_matchQueue, opp_id);
-
-            simulateMatch(user, opponent);
         } else {
             printf("Invalid choice.\n");
         }

@@ -12,9 +12,9 @@
 
 typedef struct MarketNode {
     char name[MAX_NAME_LEN];
-    char type[TYPE_LEN];
+    char type[TYPE_LEN];   
     int  rating;
-    int  price;
+    int  price;            
     struct MarketNode* next;
     struct MarketNode* prev;
 } MarketNode;
@@ -26,11 +26,13 @@ typedef struct Marketplace {
 
 void initMarketplace(Marketplace* market);
 
-void addToMarketplace(Marketplace* market, const char* name, const char* type, int rating, int price);
+void addToMarketplace(Marketplace* market, const char* name, const char* type,
 
 MarketNode* removeFromMarketplace(Marketplace* market, const char* name);
 
 MarketNode* searchMarketByName(Marketplace* market, const char* name);
+
+void searchMarketByType(Marketplace* market, const char* type);
 
 void displayMarketplace(Marketplace* market);
 
@@ -38,6 +40,6 @@ void freeMarketplace(Marketplace* market);
 
 void seedMarketplace(Marketplace* market);
 
-bool searchMarketAdvanced(Marketplace* market, const char* name, const char* type, int min_rating, int max_rating);
-
+bool searchMarketBasicOptions(Marketplace* market, int min_rating, int max_rating);
 #endif
+
