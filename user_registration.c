@@ -3,14 +3,15 @@
 static const char* LEVEL_NAMES[] = {
     "Amateur 3", "Amateur 2", "Amateur 1",
     "Pro 3",     "Pro 2",     "Pro 1",
-    "World Class 2", "World Class 1",
+    "World Class 3", "World Class 2", "World Class 1",
     "Legendary"
 };
 
 static const int WEEKLY_REWARDS[] = {
-    10000, 40000, 70000,
-    100000, 130000, 160000,
-    190000, 220000, 250000
+    5000, 10000, 15000,
+    20000, 25000, 30000,
+    35000, 40000, 45000,
+    50000
 };
 
 void initRegistry(UserRegistry* registry) {
@@ -52,6 +53,13 @@ UserNode* addUser(UserRegistry* registry, const char* name, const char* password
     newNode -> total_draws  = 0;
     newNode -> week_wins    = 0;
     newNode -> week_matches = 0;
+    newNode -> reward_history_count = 0;
+    for(int i=0; i<4; i++) {
+        newNode -> past_week_levels[i] = 0;
+        newNode -> past_week_ranks[i] = 0;
+        newNode -> past_week_rewards[i] = 0;
+        newNode -> past_weeks[i] = 0;
+    }
     newNode -> inventory    = NULL;
     newNode -> squad        = NULL;
     newNode -> match_history = NULL;
@@ -142,7 +150,7 @@ UserNode* findUserByName(UserRegistry* registry, const char* name) {
 }
 
 const char* getLevelName(int level) {
-    if (level < 0 || level > 8) {
+    if (level < 0 || level > 9) {
         return "Unknown";
     }
     return LEVEL_NAMES[level];
@@ -152,7 +160,8 @@ void updateUserLevel(UserNode* user) {
     int wins = user -> total_wins;
     int new_level;
 
-    if (wins >= 40) new_level = 8;
+    if (wins >= 45) new_level = 9;
+    else if (wins >= 40) new_level = 8;
     else if (wins >= 35) new_level = 7;
     else if (wins >= 28) new_level = 6;
     else if (wins >= 21) new_level = 5;
@@ -170,7 +179,7 @@ void updateUserLevel(UserNode* user) {
 }
 
 int getWeeklyReward(int level) {
-    if (level < 0 || level > 8) {
+    if (level < 0 || level > 9) {
         return 0;
     }
     return WEEKLY_REWARDS[level];

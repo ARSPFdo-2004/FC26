@@ -24,6 +24,11 @@ typedef struct UserNode {
     int total_draws;
     int week_wins;
     int week_matches;
+    int past_week_levels[4];
+    int past_week_ranks[4];
+    int past_week_rewards[4];
+    int past_weeks[4];
+    int reward_history_count;
     PlayerInventory* inventory;
     Squad* squad;
     MatchStack* match_history;

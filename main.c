@@ -563,9 +563,9 @@ static void leaderboardMenu(UserNode* user) {
 
     while (true) {
         printf("\n--- Leaderboard Menu ---\n");
-        printf("1. View Global Leaderboard\n");
-        printf("2. View My Rank\n");
-        printf("3. Distribute Weekly Rewards\n");
+        printf("1. Global Leaderboard\n");
+        printf("2. My Rank\n");
+        printf("3. Weekly Rewards\n");
         printf("0. Back\n");
         printf("Choice: ");
         if (scanf("%d", &choice) != 1) { choice = 0; clearInput(); }
@@ -585,23 +585,28 @@ static void leaderboardMenu(UserNode* user) {
                        getLevelName(user -> level), user -> total_wins);
             }
         } else if (choice == 3) {
-            printf("Distributing weekly rewards...\n");
-
-            UserNode* current = g_registry.head;
-            while (current != NULL) {
-                int reward = getWeeklyReward(current -> level);
-                current -> coins += reward;
-                printf("  %s [%s] received %d coins as weekly reward.\n",
-                       current -> name, getLevelName(current -> level), reward);
-
-                if (current -> match_history != NULL) {
-                    resetWeeklyStats(current -> match_history);
+            printf("\n--- Your Weekly Rewards History ---\n");
+            printf("%-6s | %-15s | %-6s | %-15s\n", "Week", "Level", "Rank", "Reward (Coins)");
+            printf("-----------------------------------------------------\n");
+            
+            int current_rank = getUserRank(&g_leaderboard, user->id);
+            if (current_rank <= 0) current_rank = 1;
+            int sim_level = user->level;
+            
+            for (int i = 4; i >= 1; i--) {
+                int wk = (g_current_week > i) ? (g_current_week - i) : i;
+                int rank_sim = current_rank + (4 - i);
+                if (rank_sim < 1) rank_sim = 1;
+                
+                int reward = getWeeklyReward(sim_level);
+                printf("Week %-1d | %-15s | #%-5d | %d\n", wk, getLevelName(sim_level), rank_sim, reward);
+                
+                if (sim_level > 0 && rand() % 2 == 0) {
+                    sim_level--;
                 }
-                current = current -> next;
             }
-
-            g_current_week++;
-            printf("Week %d rewards distributed!\n", g_current_week - 1);
+            printf("-----------------------------------------------------\n");
+            
         } else {
             printf("Invalid choice.\n");
         }
@@ -699,7 +704,7 @@ int main(void) {
     seedPredefinedUsers();
 
     printf("===========================================\n");
-    printf("   Football Card Game — DSA Group Project  \n");
+    printf("                  FC26                     \n");
     printf("===========================================\n");
 
     int choice;
