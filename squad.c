@@ -118,6 +118,12 @@ int compareCards(const void* a, const void* b) {
     return c2->rating - c1->rating;
 }
 
+int compareCardsRating(const void* a, const void* b) {
+    TempCard* c1 = (TempCard*)a;
+    TempCard* c2 = (TempCard*)b;
+    return c2->rating - c1->rating;
+}
+
 void displayAllUserCards(Squad* squad, PlayerInventory* inv) {
     TempCard cards[200];
     int count = 0;
@@ -132,6 +138,8 @@ void displayAllUserCards(Squad* squad, PlayerInventory* inv) {
             count++;
         }
     }
+    
+    int squad_count = count;
     
     InventoryNode* curr = inv->head;
     while (curr != NULL) {
@@ -152,20 +160,27 @@ void displayAllUserCards(Squad* squad, PlayerInventory* inv) {
         curr = curr->next;
     }
     
-    qsort(cards, SQUAD_SIZE, sizeof(TempCard), compareCards);
-    qsort(cards + SQUAD_SIZE, count - SQUAD_SIZE, sizeof(TempCard), compareCards);
+    // Lineup gets ordered by position FW -> MF -> DF -> GK
+    qsort(cards, squad_count, sizeof(TempCard), compareCards);
+    
+    // Other players ordered strictly by rating descending
+    if (count > squad_count) {
+        qsort(cards + squad_count, count - squad_count, sizeof(TempCard), compareCardsRating);
+    }
     
     printf("\n=== All Player Cards ===\n");
+    printf("\n--- LINEUP ---\n");
     printf("%-3s %-25s %-6s %-7s\n", "#", "Player", "P Pos", "Rating");
     printf("%-3s %-25s %-6s %-7s\n", "---", "-------------------------", "------", "-------");
     
-    for (int i = 0; i < SQUAD_SIZE && i < count; i++) {
+    for (int i = 0; i < squad_count; i++) {
         printf("%-3d %-25s %-6s %-7d\n", i + 1, cards[i].name, cards[i].type, cards[i].rating);
     }
     
-    if (count > SQUAD_SIZE) {
+    if (count > squad_count) {
+        printf("\n--- OTHER PLAYERS ---\n");
         printf("--------------------------------------------\n");
-        for (int i = SQUAD_SIZE; i < count; i++) {
+        for (int i = squad_count; i < count; i++) {
             printf("%-3d %-25s %-6s %-7d\n", i + 1, cards[i].name, cards[i].type, cards[i].rating);
         }
     }
@@ -174,81 +189,64 @@ void displayAllUserCards(Squad* squad, PlayerInventory* inv) {
 
 void swapPlayerCards(Squad* squad, PlayerInventory* inv, const char* name1, const char* name2) {
     int s1 = -1, s2 = -1;
-    InventoryNode* i1 = NULL;
-    InventoryNode* i2 = NULL;
     
     for (int i = 0; i < SQUAD_SIZE; i++) {
         if (squad->slots[i].is_filled) {
             if (s1 == -1 && isPartialMatch(squad->slots[i].player_name, name1)) s1 = i;
-            else if (s2 == -1 && isPartialMatch(squad->slots[i].player_name, name2)) s2 = i;
+            if (s2 == -1 && isPartialMatch(squad->slots[i].player_name, name2)) s2 = i;
         }
     }
     
+    InventoryNode* i1 = NULL;
+    InventoryNode* i2 = NULL;
     InventoryNode* curr = inv->head;
     while (curr != NULL) {
         if (i1 == NULL && isPartialMatch(curr->name, name1)) i1 = curr;
-        else if (i2 == NULL && isPartialMatch(curr->name, name2)) i2 = curr;
+        if (i2 == NULL && isPartialMatch(curr->name, name2)) i2 = curr;
         curr = curr->next;
     }
     
-    char n1_act[MAX_NAME_LEN] = "", n2_act[MAX_NAME_LEN] = "";
-    int loc1 = 0, loc2 = 0; // 1:squad, 2:inv
-    
-    if (s1 != -1) { strcpy(n1_act, squad->slots[s1].player_name); loc1 = 1; }
-    else if (i1 != NULL) { strcpy(n1_act, i1->name); loc1 = 2; }
-    
-    if (s2 != -1) { strcpy(n2_act, squad->slots[s2].player_name); loc2 = 1; }
-    else if (i2 != NULL) { strcpy(n2_act, i2->name); loc2 = 2; }
-    
-    if (loc1 == 0 || loc2 == 0) {
+    if ((s1 == -1 && i1 == NULL) || (s2 == -1 && i2 == NULL)) {
         printf("One or both players not found.\n");
         return;
     }
     
-    // Perform swap of properties
-    char temp_name[MAX_NAME_LEN], temp_type[4]; int temp_rating;
-    
-    if (loc1 == 1) {
+    if (s1 != -1 && s2 != -1) {
+        char temp_name[MAX_NAME_LEN];
+        char temp_type[4];
+        int temp_rating;
+        
         strcpy(temp_name, squad->slots[s1].player_name);
         strcpy(temp_type, squad->slots[s1].native_type);
         temp_rating = squad->slots[s1].player_rating;
-    } else {
-        strcpy(temp_name, i1->name);
-        strcpy(temp_type, i1->type);
-        temp_rating = i1->rating;
-    }
-    
-    if (loc2 == 1) {
-        if (loc1 == 1) {
-            strcpy(squad->slots[s1].player_name, squad->slots[s2].player_name);
-            strcpy(squad->slots[s1].native_type, squad->slots[s2].native_type);
-            squad->slots[s1].player_rating = squad->slots[s2].player_rating;
-        } else {
-            strcpy(i1->name, squad->slots[s2].player_name);
-            strcpy(i1->type, squad->slots[s2].native_type);
-            i1->rating = squad->slots[s2].player_rating;
-        }
-    } else {
-        if (loc1 == 1) {
-            strcpy(squad->slots[s1].player_name, i2->name);
-            strcpy(squad->slots[s1].native_type, i2->type);
-            squad->slots[s1].player_rating = i2->rating;
-        } else {
-            strcpy(i1->name, i2->name);
-            strcpy(i1->type, i2->type);
-            i1->rating = i2->rating;
-        }
-    }
-    
-    if (loc2 == 1) {
+        
+        strcpy(squad->slots[s1].player_name, squad->slots[s2].player_name);
+        strcpy(squad->slots[s1].native_type, squad->slots[s2].native_type);
+        squad->slots[s1].player_rating = squad->slots[s2].player_rating;
+        
         strcpy(squad->slots[s2].player_name, temp_name);
         strcpy(squad->slots[s2].native_type, temp_type);
         squad->slots[s2].player_rating = temp_rating;
-    } else {
-        strcpy(i2->name, temp_name);
-        strcpy(i2->type, temp_type);
-        i2->rating = temp_rating;
+        
+        printf("Swapped %s and %s in the squad.\n", squad->slots[s2].player_name, squad->slots[s1].player_name);
+        return;
     }
     
-    printf("swap %s with %s\n", n1_act, n2_act);
+    if (s1 != -1 && s2 == -1 && i2 != NULL) {
+        printf("Replaced %s with %s in the squad.\n", squad->slots[s1].player_name, i2->name);
+        strcpy(squad->slots[s1].player_name, i2->name);
+        strcpy(squad->slots[s1].native_type, i2->type);
+        squad->slots[s1].player_rating = i2->rating;
+        return;
+    }
+    
+    if (s2 != -1 && s1 == -1 && i1 != NULL) {
+        printf("Replaced %s with %s in the squad.\n", squad->slots[s2].player_name, i1->name);
+        strcpy(squad->slots[s2].player_name, i1->name);
+        strcpy(squad->slots[s2].native_type, i1->type);
+        squad->slots[s2].player_rating = i1->rating;
+        return;
+    }
+    
+    printf("At least one player must be in the squad to swap.\n");
 }
