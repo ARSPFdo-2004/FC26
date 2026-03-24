@@ -1,17 +1,11 @@
 #include "user_registration.h"
 
 static const char* LEVEL_NAMES[] = {
-    "Amateur 3", "Amateur 2", "Amateur 1",
-    "Pro 3",     "Pro 2",     "Pro 1",
-    "World Class 3", "World Class 2", "World Class 1",
-    "Legendary"
+    "Amateur", "Pro", "World Class", "Legendary"
 };
 
 static const int WEEKLY_REWARDS[] = {
-    5000, 10000, 15000,
-    20000, 25000, 30000,
-    35000, 40000, 45000,
-    50000
+    5000, 15000, 30000, 50000
 };
 
 void initRegistry(UserRegistry* registry) {
@@ -154,7 +148,7 @@ UserNode* findUserByName(UserRegistry* registry, const char* name) {
 }
 
 const char* getLevelName(int level) {
-    if (level < 0 || level > 9) {
+    if (level < 0 || level > 3) {
         return "Unknown";
     }
     return LEVEL_NAMES[level];
@@ -164,15 +158,10 @@ void updateUserLevel(UserNode* user, int rank) {
     if (rank <= 0) return;
     int new_level;
 
-    if (rank <= 5) new_level = 8;
-    else if (rank <= 15) new_level = 7;
-    else if (rank <= 25) new_level = 6;
-    else if (rank <= 45) new_level = 5;
-    else if (rank <= 65) new_level = 4;
-    else if (rank <= 85) new_level = 3;
-    else if (rank <= 125) new_level = 2;
-    else if (rank <= 165) new_level = 1;
-    else                 new_level = 0;
+    if (rank <= 3) new_level = 3;
+    else if (rank <= 6) new_level = 2;
+    else if (rank <= 9) new_level = 1;
+    else new_level = 0;
 
     if (new_level != user -> level) {
         printf("  >> Level changed: %s -> %s\n",

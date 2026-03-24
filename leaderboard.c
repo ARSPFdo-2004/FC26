@@ -1,14 +1,11 @@
 #include "leaderboard.h"
 
 static const char* LB_LEVEL_NAMES[] = {
-    "Amateur 3", "Amateur 2", "Amateur 1",
-    "Pro 3",     "Pro 2",     "Pro 1",
-    "World Class 2", "World Class 1",
-    "Legendary"
+    "Amateur", "Pro", "World Class", "Legendary"
 };
 
 const char* getLevelNameLB(int level) {
-    if (level < 0 || level > 8) {
+    if (level < 0 || level > 3) {
         return "Unknown";
     }
     return LB_LEVEL_NAMES[level];
@@ -172,11 +169,6 @@ void sortLeaderboard(Leaderboard* lb) {
 }
 
 static int getSimulatedRank(int level, int real_rank) {
-    int base_ranks[] = {165, 125, 85, 65, 45, 25, 15, 5, 0};
-    if (level >= 0 && level <= 8) {
-        int base = base_ranks[level];
-        return (real_rank > base) ? real_rank : (base + real_rank);
-    }
     return real_rank;
 }
 

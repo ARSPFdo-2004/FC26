@@ -103,14 +103,16 @@ static void updateAllGlobalLevels() {
 }
 
 static void seedPredefinedUsers(void) {
-    static const char* names[10] = {
+    static const char* names[18] = {
         "ALPHASTRIKE", "BETAFORCE", "GAMMAKNIGHT", "DELTABLITZ", "EPSILONSTAR",
-        "ZETASHIELD", "ETASTORM", "THETAFANG", "IOTABRINGER", "KAPPANULL"
+        "ZETASHIELD", "ETASTORM", "THETAFANG", "IOTABRINGER", "KAPPANULL",
+        "LAMBDALION", "MURAVEN", "NUVIPER", "XIDRAGON", "OMICRONBEAR",
+        "PIWOLF", "RHOEAGLE", "SIGMASHARK"
     };
-    UserNode* u[10];
+    UserNode* u[18];
     int i;
 
-    for (i = 0; i < 10; i++) {
+    for (i = 0; i < 18; i++) {
         u[i] = addUser(&g_registry, names[i], "PASS123");
         if (u[i] == NULL) {
             u[i] = findUserByName(&g_registry, names[i]);
@@ -240,18 +242,26 @@ static void seedPredefinedUsers(void) {
     addMatchRecord(u[7], "BotPlayer3",  RESULT_WIN,  500, 1);
     addMatchRecord(u[8], "BotPlayer1",  RESULT_WIN,  500, 1);
     addMatchRecord(u[9], "BotPlayer2",  RESULT_WIN,  500, 1);
+    addMatchRecord(u[10], "BotPlayer1", RESULT_WIN,  500, 1);
+    addMatchRecord(u[11], "BotPlayer2", RESULT_WIN,  500, 1);
+    addMatchRecord(u[12], "BotPlayer3", RESULT_WIN,  500, 1);
+    addMatchRecord(u[13], "BotPlayer1", RESULT_LOSS, 0, 1);
+    addMatchRecord(u[14], "BotPlayer2", RESULT_LOSS, 0, 1);
+    addMatchRecord(u[15], "BotPlayer3", RESULT_LOSS, 0, 1);
+    addMatchRecord(u[16], "BotPlayer1", RESULT_DRAW, 250, 1);
+    addMatchRecord(u[17], "BotPlayer2", RESULT_DRAW, 250, 1);
 
-    for (i = 0; i < 10; i++) {
+    for (i = 0; i < 18; i++) {
         if (u[i] == NULL) continue;
         addToLeaderboard(&g_leaderboard, u[i]->id, u[i]->name,
-                         u[i]->total_wins, u[i]->total_losses, u[i]->total_draws, 
+                         u[i]->total_wins, u[i]->total_losses, u[i]->total_draws,
                          getWinPercentage(u[i]->match_history), getWeeklyWinPercentage(u[i]->match_history), u[i]->level);
     }
     updateAllGlobalLevels();
 
     g_current_week = 6;
 
-    printf("10 predefined users loaded with match history and leaderboard entries.\n");
+    printf("18 predefined users loaded with match history and leaderboard entries.\n");
 }
 
 static void simulateMatch(UserNode* u1, UserNode* u2) {
