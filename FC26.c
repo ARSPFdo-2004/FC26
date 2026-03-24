@@ -51,6 +51,8 @@ void giveInitialPlayers(PlayerInventory* inv, int user_id);
 
 void freeInventory(PlayerInventory* inv);
 
+void seePlayers(PlayerInventory* inv);
+
 #endif 
 
 // ==================== squad.h ====================
@@ -572,6 +574,43 @@ void freeInventory(PlayerInventory* inv) {
     inv -> head  = NULL;
     inv -> tail  = NULL;
     inv -> count = 0;
+}
+
+void seePlayers(PlayerInventory* inv){
+    if (inv == NULL || inv->head == NULL) {
+        printf("\nNo players available in inventory.\n");
+        return;
+    }
+
+    char movement;
+    InventoryNode* current = inv->head;
+
+    printf("\n%-25s %-5s %-7s %-7s\n", "Name", "Type", "Rating", "Price");
+    printf("%-25s %-5s %-7s %-7s\n", "-------------------------", "-----", "-------", "-------");
+
+    while (1){
+        printf("%-25s %-5s %-7d %-7d\n", current->name, current->type, current->rating, current->price);
+        printf("%-25s %-5s %-7s %-7s\n", "-------------------------", "-----", "-------", "-------");
+
+        printf("Enter direction (Next: D, Previous: A, Exit: 0): ");
+        if (scanf(" %c", &movement) != 1) {
+            printf("\nInput cannot be recognised. Please enter a valid input...\n");
+            continue;
+        }
+
+        if (movement == 'D' || movement == 'd'){
+            current = (current == inv->tail) ? inv->head : current->next;
+        }
+        else if (movement == 'A' || movement == 'a'){
+            current = (current == inv->head) ? inv->tail : current->prev;
+        }
+        else if (movement == '0' || movement == 'o' || movement == 'O'){
+            break;
+        }
+        else {
+            printf("\nInput cannot be recognised. Please enter a valid input...\n");
+        }
+    }
 }
 
 // ==================== squad.c ====================
