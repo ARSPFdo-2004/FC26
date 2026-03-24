@@ -20,7 +20,7 @@ void initLeaderboard(Leaderboard* lb) {
 }
 
 void addToLeaderboard(Leaderboard* lb, int user_id, const char* name,
-                      int wins, int level) {
+                      int wins, int losses, float win_percentage, float week_win_percentage, int level) {
     LBNode* newNode = (LBNode *) malloc(sizeof(LBNode));
     if (newNode == NULL) {
         printf("Memory allocation failed\n");
@@ -31,6 +31,9 @@ void addToLeaderboard(Leaderboard* lb, int user_id, const char* name,
     strncpy(newNode -> user_name, name, MAX_NAME_LEN - 1);
     newNode -> user_name[MAX_NAME_LEN - 1] = '\0';
     newNode -> wins  = wins;
+    newNode -> losses = losses;
+    newNode -> win_percentage = win_percentage;
+    newNode -> week_win_percentage = week_win_percentage;
     newNode -> level = level;
     newNode -> next  = NULL;
 
@@ -87,7 +90,7 @@ void removeFromLeaderboard(Leaderboard* lb, int user_id) {
 }
 
 void updateLeaderboardEntry(Leaderboard* lb, int user_id,
-                             int wins, int level) {
+                             int wins, int losses, float win_percentage, float week_win_percentage, int level) {
     if (lb -> head == NULL) {
         return;
     }
@@ -98,6 +101,9 @@ void updateLeaderboardEntry(Leaderboard* lb, int user_id,
     for (i = 0; i < lb -> count; i++) {
         if (current -> user_id == user_id) {
             current -> wins  = wins;
+            current -> losses = losses;
+            current -> win_percentage = win_percentage;
+            current -> week_win_percentage = week_win_percentage;
             current -> level = level;
             sortLeaderboard(lb);
             return;
@@ -126,17 +132,26 @@ void sortLeaderboard(Leaderboard* lb) {
                 
                 int  tmp_id    = current -> user_id;
                 int  tmp_wins  = current -> wins;
+                int  tmp_losses = current -> losses;
+                float tmp_win_perc = current -> win_percentage;
+                float tmp_week_win_perc = current -> week_win_percentage;
                 int  tmp_level = current -> level;
                 char tmp_name[MAX_NAME_LEN];
                 strncpy(tmp_name, current -> user_name, MAX_NAME_LEN);
 
                 current -> user_id = next_node -> user_id;
                 current -> wins    = next_node -> wins;
+                current -> losses  = next_node -> losses;
+                current -> win_percentage = next_node -> win_percentage;
+                current -> week_win_percentage = next_node -> week_win_percentage;
                 current -> level   = next_node -> level;
                 strncpy(current -> user_name, next_node -> user_name, MAX_NAME_LEN);
 
                 next_node -> user_id = tmp_id;
                 next_node -> wins    = tmp_wins;
+                next_node -> losses  = tmp_losses;
+                next_node -> win_percentage = tmp_win_perc;
+                next_node -> week_win_percentage = tmp_week_win_perc;
                 next_node -> level   = tmp_level;
                 strncpy(next_node -> user_name, tmp_name, MAX_NAME_LEN);
 
@@ -158,20 +173,20 @@ void displayLeaderboard(Leaderboard* lb) {
     }
 
     printf("\n=== Global Leaderboard ===\n");
-    printf("%-5s %-6s %-20s %-15s %-5s\n",
-           "Rank", "ID", "Name", "Level", "Wins");
-    printf("%-5s %-6s %-20s %-15s %-5s\n",
+    printf("%-5s %-6s %-20s %-15s %-5s %-6s %-8s %-12s\n",
+           "Rank", "ID", "Name", "Level", "Wins", "Losses", "Win %", "Week Win %");
+    printf("%-5s %-6s %-20s %-15s %-5s %-6s %-8s %-12s\n",
            "----", "------", "--------------------",
-           "---------------", "-----");
+           "---------------", "-----", "------", "-------", "------------");
 
     LBNode* current = lb -> head;
     int rank = 1;
     int i;
 
     for (i = 0; i < lb -> count; i++) {
-        printf("%-5d %-6d %-20s %-15s %-5d\n",
+        printf("%-5d %-6d %-20s %-15s %-5d %-6d %-7.1f%% %-11.1f%%\n",
                rank, current -> user_id, current -> user_name,
-               getLevelNameLB(current -> level), current -> wins);
+               getLevelNameLB(current -> level), current -> wins, current -> losses, current -> win_percentage, current -> week_win_percentage);
         current = current -> next;
         rank++;
     }

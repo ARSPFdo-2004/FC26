@@ -217,7 +217,8 @@ static void seedPredefinedUsers(void) {
         if (u[i] == NULL) continue;
         updateUserLevel(u[i]);
         addToLeaderboard(&g_leaderboard, u[i]->id, u[i]->name,
-                         u[i]->total_wins, u[i]->level);
+                         u[i]->total_wins, u[i]->match_history->total_losses, 
+                         getWinPercentage(u[i]->match_history), getWeeklyWinPercentage(u[i]->match_history), u[i]->level);
     }
 
     g_current_week = 6;
@@ -304,9 +305,11 @@ static void simulateMatch(UserNode* u1, UserNode* u2) {
     updateUserLevel(u2);
 
     updateLeaderboardEntry(&g_leaderboard, u1 -> id,
-                           u1 -> total_wins, u1 -> level);
+                           u1 -> total_wins, u1 -> match_history->total_losses, 
+                           getWinPercentage(u1->match_history), getWeeklyWinPercentage(u1->match_history), u1 -> level);
     updateLeaderboardEntry(&g_leaderboard, u2 -> id,
-                           u2 -> total_wins, u2 -> level);
+                           u2 -> total_wins, u2 -> match_history->total_losses, 
+                           getWinPercentage(u2->match_history), getWeeklyWinPercentage(u2->match_history), u2 -> level);
 }
 
 static void inventoryMenu(UserNode* user) {
@@ -627,7 +630,7 @@ static void leaderboardMenu(UserNode* user) {
                 int rank_sim = current_rank + (4 - i);
                 if (rank_sim < 1) rank_sim = 1;
                 
-                int reward = getWeeklyReward(sim_level);
+                  int reward = getWeeklyReward(sim_level) + ((1000 / rank_sim) * wk);
                 printf("Week %-1d | %-15s | #%-5d | %d\n", wk, getLevelName(sim_level), rank_sim, reward);
                 
                 if (sim_level > 0 && rand() % 2 == 0) {
@@ -647,33 +650,26 @@ static void matchHistoryMenu(UserNode* user) {
 
     while (true) {
         printf("\n--- Match History Menu (%s) ---\n", user -> name);
-        printf("1. View Match History\n");
-        printf("2. View Overall Win Percentage\n");
-        printf("3. View This Week's Win Percentage\n");
-        printf("0. Back\n");
-        printf("Choice: ");
-        if (scanf("%d", &choice) != 1) { choice = 0; clearInput(); }
-        clearInput();
+          printf("1. Match History\n");
+          printf("2. Statistics\n");
+          printf("0. Back\n");
+          printf("Choice: ");
+          if (scanf("%d", &choice) != 1) { choice = 0; clearInput(); }
+          clearInput();
 
-        if (choice == 0) {
-            break;
-        } else if (choice == 1) {
-            displayMatchHistory(user -> match_history);
-        } else if (choice == 2) {
-            printf("\nOverall win rate for %s: %.1f%% (%d/%d)\n",
-                   user -> name,
-                   getWinPercentage(user -> match_history),
-                   user -> match_history->total_wins,
-                   user -> match_history->total_matches);
-        } else if (choice == 3) {
-            printf("\nWeek %d win rate for %s: %.1f%% (%d/%d)\n",
-                   user -> match_history->current_week,
-                   user -> name,
-                   getWeeklyWinPercentage(user -> match_history),
-                   user -> match_history->week_wins,
-                   user -> match_history->week_matches);
-        } else {
-            printf("Invalid choice.\n");
+          if (choice == 0) {
+              break;
+          } else if (choice == 1) {
+              displayMatchHistory(user -> match_history);
+          } else if (choice == 2) {
+              int week, match_no;
+              printf("Enter Week: ");
+              if (scanf("%d", &week) != 1) week = 0;
+              clearInput();
+              printf("Enter Match Number: ");
+              if (scanf("%d", &match_no) != 1) match_no = 0;
+              clearInput();
+              displayStatistics(user->match_history, week, match_no);
         }
     }
 }
@@ -765,9 +761,13 @@ int main(void) {
             UserNode* newUser = addUser(&g_registry, name, password);
             if (newUser != NULL) {
                 initUserModules(newUser);
-                
+
+                  addMatchRecord(newUser, "BotAlpha", RESULT_WIN,  500, 1);
+                  addMatchRecord(newUser, "BotBeta", RESULT_LOSS, 0,   1);
+                  addMatchRecord(newUser, "BotGamma", RESULT_DRAW, 250, 1);
+                  addMatchRecord(newUser, "BotDelta", RESULT_WIN,  500, 1);
                 addToLeaderboard(&g_leaderboard, newUser -> id,
-                                 newUser -> name, 0, 0);
+                                   newUser -> name, newUser->total_wins, newUser->total_losses, getWinPercentage(newUser->match_history), getWeeklyWinPercentage(newUser->match_history), newUser->level);
                 printf("Registration successful!\n");
                 printf("User ID: %d | Starting coins: %d\n",
                        newUser -> id, newUser -> coins);

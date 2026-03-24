@@ -169,3 +169,26 @@ void freeMatchStack(MatchStack* stack) {
         popMatch(stack);
     }
 }
+
+void displayStatistics(MatchStack* stack, int week, int match_num) {
+    MatchRecord* curr = stack->top;
+    while (curr) {
+        if (curr->week == week && curr->match_number == match_num) {
+            printf("\n");
+            printf("                        === Match Statistics ===\n");
+            printf("                       Opponent: %s\n", curr->opponent_name);
+            printf("-----------------------------------------------------------------------\n");
+            printf("             %20s | %-20s\n", "You", curr->opponent_name);
+            printf("-----------------------------------------------------------------------\n");
+            printf("      Goals: %20d | %-20d\n", curr->my_goals, curr->opp_goals);
+            printf("      Shots: %20d | %-20d\n", curr->my_shots, curr->opp_shots);
+            printf("    Assists: %20d | %-20d\n", curr->my_assists, curr->opp_assists);
+            printf("      Fouls: %20d | %-20d\n", curr->my_fouls, curr->opp_fouls);
+            printf("   Offsides: %20d | %-20d\n", curr->my_offsides, curr->opp_offsides);
+            printf("-----------------------------------------------------------------------\n");
+            return;
+        }
+        curr = curr->next;
+    }
+    printf("Match not found for Week %d, Match Number %d.\n", week, match_num);
+}
