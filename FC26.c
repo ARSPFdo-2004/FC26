@@ -2467,22 +2467,28 @@ static void marketplaceMenu(UserNode* user) {
 
                 if (match_count > 0) {
                     int current_idx = 0;
+                    char movement;
                     while (true) {
-                        printf("\nSelected Player: %-20s | %-4s | Rating: %-3d | Price: %-6d\n", 
-                               matches[current_idx]->name, matches[current_idx]->type, 
-                               matches[current_idx]->rating, matches[current_idx]->price);
-                        printf("Options: [N]ext, [P]rev, [B]uy, [0] Back\n");
-                        printf("Choice: ");
-                        char nav_choice[256];
-                        readLine(nav_choice, sizeof(nav_choice));
-                        
-                        if (strcasecmp(nav_choice, "0") == 0) {
+                        printf("\n%-25s %-5s %-7s %-7s\n", "Name", "Type", "Rating", "Price");
+                        printf("%-25s %-5s %-7s %-7s\n", "-------------------------", "-----", "-------", "-------");
+                        printf("%-25s %-5s %-7d %-7d\n", matches[current_idx]->name, matches[current_idx]->type, matches[current_idx]->rating, matches[current_idx]->price);
+                        printf("%-25s %-5s %-7s %-7s\n", "-------------------------", "-----", "-------", "-------");
+
+                        printf("Enter direction (Next: D, Previous: A, Buy: B, Exit: 0): ");
+                        if (scanf(" %c", &movement) != 1) {
+                            printf("\nInput cannot be recognised. Please enter a valid input...\n");
+                            clearInput();
+                            continue;
+                        }
+                        clearInput();
+
+                        if (movement == '0' || movement == 'o' || movement == 'O') {
                             break;
-                        } else if (strcasecmp(nav_choice, "N") == 0 || strcasecmp(nav_choice, "Next") == 0) {
+                        } else if (movement == 'D' || movement == 'd') {
                             current_idx = (current_idx + 1) % match_count;
-                        } else if (strcasecmp(nav_choice, "P") == 0 || strcasecmp(nav_choice, "Prev") == 0) {
+                        } else if (movement == 'A' || movement == 'a') {
                             current_idx = (current_idx - 1 + match_count) % match_count;
-                        } else if (strcasecmp(nav_choice, "B") == 0 || strcasecmp(nav_choice, "Buy") == 0) {
+                        } else if (movement == 'B' || movement == 'b') {
                             MarketNode* card = matches[current_idx];
                             if (user->coins >= card->price) {
                                 user->coins -= card->price;
