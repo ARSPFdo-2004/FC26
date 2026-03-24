@@ -261,7 +261,7 @@ int getUserRank(Leaderboard* lb, int user_id) {
 
     for (i = 0; i < lb -> count; i++) {
         if (current -> user_id == user_id) {
-            return rank;
+            return getSimulatedRank(current->level, rank);
         }
         current = current -> next;
         rank++;

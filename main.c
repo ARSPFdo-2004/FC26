@@ -786,12 +786,20 @@ int main(void) {
             UserNode* newUser = addUser(&g_registry, name, password);
             if (newUser != NULL) {
                 initUserModules(newUser);
-                  // Provide 5 weeks of default match history for statistics display
-                  addMatchRecord(newUser, "BotAlpha", RESULT_LOSS, 0,   1);
-                  addMatchRecord(newUser, "BotBeta",  RESULT_DRAW, 250, 2);
-                  addMatchRecord(newUser, "BotGamma", RESULT_WIN,  500, 3);
-                  addMatchRecord(newUser, "BotDelta", RESULT_LOSS, 0,   4);
-                  addMatchRecord(newUser, "BotSigma", RESULT_WIN,  500, 5);
+                  // Provide 3 weeks of default match history, 10 matches per week
+                  const char* bot_names[10] = {
+                      "ALPHASTRIKE", "BETAFORCE", "GAMMAKNIGHT", "DELTABLITZ", "EPSILONSTAR",
+                      "ZETASHIELD", "ETASTORM", "THETAFANG", "IOTABRINGER", "KAPPANULL"
+                  };
+                  for (int w = 1; w <= 3; w++) {
+                      for (int m = 1; m <= 10; m++) {
+                          const char* oppName = bot_names[rand() % 10];
+                          char res = (m % 3 == 0) ? RESULT_WIN : ((m % 2 == 0) ? RESULT_DRAW : RESULT_LOSS);
+                          int points = (res == RESULT_WIN) ? 500 : ((res == RESULT_DRAW) ? 250 : 0);
+                          addMatchRecord(newUser, oppName, res, points, w);
+                      }
+                      resetWeeklyStats(newUser->match_history);
+                  }
 
                   // Reset leaderboard totals to keep the user effectively at 0/0/0
                   newUser->total_wins = 0;
