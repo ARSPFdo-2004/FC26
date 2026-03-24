@@ -2408,46 +2408,65 @@ static void marketplaceMenu(UserNode* user) {
                     printf("No players matching the above criteria found\n");
                     continue;
                 }
-                printf("Enter Player Name to purchase (or '0' to go back): ");
-                readLine(input, sizeof(input));
-                if (strcmp(input, "0") == 0) {
-                    continue;
-                }
-                printf("Enter Player Rating: ");
-                if (scanf("%d", &target_rating) != 1) { target_rating = 0; clearInput(); }
-                clearInput();
-
+                
+                MarketNode* matches[1000];
+                int match_count = 0;
                 MarketNode* curr = g_market.head;
-                MarketNode* card = NULL;
                 if (curr != NULL) {
                     for (int i = 0; i < g_market.count; i++) {
-                        if (strcasecmp(curr->name, input) == 0 && curr->rating == target_rating && strcasecmp(curr->type, type) == 0) {
-                            card = curr; break;
+                        bool match = true;
+                        if (curr->rating < min_r || curr->rating > max_r) match = false;
+                        if (strlen(type) > 0 && strcasecmp(curr->type, type) != 0) match = false;
+                        if (strlen(input) > 0 && !isPartialMatch(curr->name, input)) match = false;
+                        
+                        if (match) {
+                            if (match_count < 1000) matches[match_count++] = curr;
                         }
                         curr = curr->next;
                     }
                 }
 
-                if (card == NULL) {
-                    printf("Player not found with given Name, Rating and Type.\n");
-                } else {
-                    if (user->coins >= card->price) {
-                        user->coins -= card->price;
-                        addPlayer(user->inventory, card->name, card->type, card->rating, card->price);
+                if (match_count > 0) {
+                    int current_idx = 0;
+                    while (true) {
+                        printf("\nSelected Player: %-20s | %-4s | Rating: %-3d | Price: %-6d\n", 
+                               matches[current_idx]->name, matches[current_idx]->type, 
+                               matches[current_idx]->rating, matches[current_idx]->price);
+                        printf("Options: [N]ext, [P]rev, [B]uy, [0] Back\n");
+                        printf("Choice: ");
+                        char nav_choice[256];
+                        readLine(nav_choice, sizeof(nav_choice));
                         
-                        if (g_market.count == 1) {
-                            g_market.head = NULL;
+                        if (strcasecmp(nav_choice, "0") == 0) {
+                            break;
+                        } else if (strcasecmp(nav_choice, "N") == 0 || strcasecmp(nav_choice, "Next") == 0) {
+                            current_idx = (current_idx + 1) % match_count;
+                        } else if (strcasecmp(nav_choice, "P") == 0 || strcasecmp(nav_choice, "Prev") == 0) {
+                            current_idx = (current_idx - 1 + match_count) % match_count;
+                        } else if (strcasecmp(nav_choice, "B") == 0 || strcasecmp(nav_choice, "Buy") == 0) {
+                            MarketNode* card = matches[current_idx];
+                            if (user->coins >= card->price) {
+                                user->coins -= card->price;
+                                addPlayer(user->inventory, card->name, card->type, card->rating, card->price);
+                                
+                                if (g_market.count == 1) {
+                                    g_market.head = NULL;
+                                } else {
+                                    card->prev->next = card->next;
+                                    card->next->prev = card->prev;
+                                    if (card == g_market.head) g_market.head = card->next;
+                                }
+                                g_market.count--;
+                                
+                                printf("Successfully bought %s for %d coins!\n", card->name, card->price);
+                                free(card);
+                            } else {
+                                printf("Not enough coins.\n");
+                            }
+                            break;
                         } else {
-                            card->prev->next = card->next;
-                            card->next->prev = card->prev;
-                            if (card == g_market.head) g_market.head = card->next;
+                            printf("Invalid choice.\n");
                         }
-                        g_market.count--;
-                        
-                        printf("Successfully bought %s for %d coins!\n", input, card->price);
-                        free(card);
-                    } else {
-                        printf("Not enough coins.\n");
                     }
                 }
             }
