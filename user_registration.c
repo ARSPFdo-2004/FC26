@@ -5,7 +5,7 @@ static const char* LEVEL_NAMES[] = {
 };
 
 static const int WEEKLY_REWARDS[] = {
-    5000, 15000, 30000, 50000
+    15000, 30000, 75000, 100000
 };
 
 void initRegistry(UserRegistry* registry) {
@@ -49,9 +49,9 @@ UserNode* addUser(UserRegistry* registry, const char* name, const char* password
     newNode -> week_matches = 0;
     newNode -> reward_history_count = 5;
     
-    // Default 5 weeks history simulating previously varying ranks
-    int default_ranks[5] = {30, 50, 75, 100, 140}; // Example ranks
-    int default_levels[5] = {5, 4, 3, 2, 1};       // Pro 1, Pro 2, Pro 3, Amateur 1, Amateur 2
+    // Default 5 weeks history simulating previously varying ranks across 25 total users
+    int default_ranks[5] = {4, 8, 14, 19, 2};
+    int default_levels[5] = {3, 2, 1, 0, 3};
     for(int i=0; i<5; i++) {
         newNode -> past_week_levels[i] = default_levels[i];
         newNode -> past_week_ranks[i] = default_ranks[i];
@@ -158,9 +158,9 @@ void updateUserLevel(UserNode* user, int rank) {
     if (rank <= 0) return;
     int new_level;
 
-    if (rank <= 3) new_level = 3;
-    else if (rank <= 6) new_level = 2;
-    else if (rank <= 9) new_level = 1;
+    if (rank <= 5) new_level = 3;
+    else if (rank <= 10) new_level = 2;
+    else if (rank <= 15) new_level = 1;
     else new_level = 0;
 
     if (new_level != user -> level) {
@@ -171,7 +171,7 @@ void updateUserLevel(UserNode* user, int rank) {
 }
 
 int getWeeklyReward(int level) {
-    if (level < 0 || level > 9) {
+    if (level < 0 || level > 3) {
         return 0;
     }
     return WEEKLY_REWARDS[level];

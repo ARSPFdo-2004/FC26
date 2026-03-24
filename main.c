@@ -356,7 +356,7 @@ static void inventoryMenu(UserNode* user) {
     char input[MAX_NAME_LEN];
 
     while (true) {
-        printf("\n--- Inventory Menu (%s) ---\n", user -> name);
+        printf("\n--- Inventory Menu ---\n");
         printf("1. View Inventory\n");
         printf("2. Search by Type\n");
         printf("3. Search by Rating Range\n");
@@ -454,7 +454,7 @@ static void squadMenu(UserNode* user) {
     char existing[MAX_NAME_LEN], new_name[MAX_NAME_LEN];
 
     while (true) {
-        printf("\n--- Squad Menu (%s) ---\n", user -> name);
+        printf("\n--- Squad Menu ---\n");
         printf("1. LineUp\n");
         printf("2. Auto\n");
         printf("3. Swap Players\n");
@@ -578,8 +578,7 @@ static void matchmakingMenu(UserNode* user) {
     int choice;
 
     while (true) {
-        printf("\n--- Matchmaking Menu (%s | Level: %s) ---\n",
-               user -> name, getLevelName(user -> level));
+        printf("\n--- Matchmaking Menu ---\n");
         printf("1. Find Opponent\n");
         printf("0. Back\n");
         printf("Choice: ");
@@ -682,7 +681,7 @@ static void matchHistoryMenu(UserNode* user) {
     int choice;
 
     while (true) {
-        printf("\n--- Match History Menu (%s) ---\n", user -> name);
+        printf("\n--- Match History Menu ---\n");
         printf("1. Match History\n");
         printf("2. Statistics\n");
         printf("0. Back\n");
@@ -695,6 +694,8 @@ static void matchHistoryMenu(UserNode* user) {
         } else if (choice == 1) {
             displayMatchHistory(user -> match_history);
         } else if (choice == 2) {
+            int cw = user->match_history->current_week;
+            printf("\n(Current Week is %d. You can view stats for weeks %d, %d, %d)\n", cw, cw-1, cw-2, cw-3);
             int week, match_no;
             printf("Enter Week: ");
             if (scanf("%d", &week) != 1) week = 0;

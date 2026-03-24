@@ -177,6 +177,12 @@ void freeMatchStack(MatchStack* stack) {
 }
 
 void displayStatistics(MatchStack* stack, int week, int match_num, const char* user_name) {
+    if (week < stack->current_week - 3 || week > stack->current_week - 1) {
+        printf("Statistics are only available for the last 3 weeks (Weeks %d, %d, %d).\n", 
+               stack->current_week - 1, stack->current_week - 2, stack->current_week - 3);
+        return;
+    }
+    
     MatchRecord* curr = stack->top;
     while (curr) {
         if (curr->week == week && curr->match_number == match_num) {
