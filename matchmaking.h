@@ -29,7 +29,9 @@ int peekQueue(MatchQueue* queue);
 
 bool isUserInQueue(MatchQueue* queue, int user_id);
 
-void displayMatchQueue(MatchQueue* queue);
+#include "user_registration.h"
+
+void displayMatchQueue(MatchQueue* queue, UserRegistry* registry);
 
 int findSameLevelOpponent(MatchQueue* queue, int user_id, int user_level);
 

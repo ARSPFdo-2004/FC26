@@ -72,20 +72,25 @@ bool isUserInQueue(MatchQueue* queue, int user_id) {
     return false;
 }
 
-void displayMatchQueue(MatchQueue* queue) {
+void displayMatchQueue(MatchQueue* queue, UserRegistry* registry) {
     if (isQueueEmpty(queue)) {
         printf("Matchmaking queue is empty.\n");
         return;
     }
 
     printf("\n=== Matchmaking Queue ===\n");
-    printf("%-5s %-12s %-5s\n", "Pos", "User ID", "Level");
-    printf("%-5s %-12s %-5s\n", "---", "-------", "-----");
+    printf("%-5s %-12s %-5s\n", "Pos", "User Name", "Level");
+    printf("%-5s %-12s %-5s\n", "---", "---------", "-----");
 
     MatchQueueNode* current = queue -> front;
     int pos = 1;
+
+    // Use a dummy user registry logic block wrapper since it might not be fully passed securely by context in some spots
     while (current != NULL) {
-        printf("%-5d %-12d %-5d\n", pos, current -> user_id, current -> user_level);
+        UserNode* u = findUserByID(registry, current->user_id);
+        char* d_name = u ? u->name : "Unknown";
+        
+        printf("%-5d %-12s %-5s\n", pos, d_name, getLevelName(current -> user_level));
         current = current -> next;
         pos++;
     }

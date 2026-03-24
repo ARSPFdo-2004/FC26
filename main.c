@@ -583,10 +583,23 @@ static void marketplaceMenu(UserNode* user) {
 }
 static void matchmakingMenu(UserNode* user) {
     int choice;
+    static int bot_counter = 1;
 
+    char botName[50];
+    snprintf(botName, sizeof(botName), "Player %d", bot_counter);
+    UserNode* current_bot = findUserByName(&g_registry, botName);
+    if (current_bot == NULL) {
+        current_bot = addUser(&g_registry, botName, "botpass");
+        initUserModules(current_bot);
+    }
+    if (!isUserInQueue(&g_matchQueue, current_bot->id)) {
+        enqueueUser(&g_matchQueue, current_bot->id, user->level);
+    }
+    
     while (true) {
         printf("\n--- Matchmaking Menu ---\n");
         printf("1. Find Opponent\n");
+        printf("2. View Queue\n");
         printf("0. Back\n");
         printf("Choice: ");
         if (scanf("%d", &choice) != 1) { choice = 0; clearInput(); }
@@ -600,20 +613,8 @@ static void matchmakingMenu(UserNode* user) {
                 continue;
             }
 
-            const char* botNames[3] = {"Player 1", "Player 2", "Player 3"};
-            for (int i = 0; i < 3; i++) {
-                UserNode* bot = findUserByName(&g_registry, botNames[i]);
-                if (bot == NULL) {
-                    bot = addUser(&g_registry, botNames[i], "botpass");
-                    initUserModules(bot);
-                }
-                if (!isUserInQueue(&g_matchQueue, bot->id)) {
-                    enqueueUser(&g_matchQueue, bot->id, user->level);
-                }
-            }
-
             printf("Match Ongoing.....\n");
-            
+
             if (!isUserInQueue(&g_matchQueue, user->id)) {
                 enqueueUser(&g_matchQueue, user->id, user->level);
             }
@@ -623,14 +624,26 @@ static void matchmakingMenu(UserNode* user) {
                 UserNode* opponent = findUserByID(&g_registry, opp_id);
                 removeFromQueue(&g_matchQueue, user->id);
                 removeFromQueue(&g_matchQueue, opp_id);
-                
+
                 printf("Match ended\n");
                 simulateMatch(user, opponent);
+                
+                bot_counter++;
+                snprintf(botName, sizeof(botName), "Player %d", bot_counter);
+                current_bot = findUserByName(&g_registry, botName);
+                if (current_bot == NULL) {
+                    current_bot = addUser(&g_registry, botName, "botpass");
+                    initUserModules(current_bot);
+                }
+                if (!isUserInQueue(&g_matchQueue, current_bot->id)) {
+                    enqueueUser(&g_matchQueue, current_bot->id, user->level);
+                }
+                
             } else {
                 printf("No opponent at your level found yet.\n");
             }
-        } else {
-            printf("Invalid choice.\n");
+        } else if (choice == 2) {
+            displayMatchQueue(&g_matchQueue, &g_registry);
         }
     }
 }
