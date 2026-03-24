@@ -2316,65 +2316,57 @@ static void inventoryMenu(UserNode* user) {
                 continue;
             }
 
-            int current_idx = 0;
-            while (true) {
-                printf("\n--- Sell Player ---\n");
-                printf("Player %d of %d\n", current_idx + 1, sell_count);
-                printf("%s | %s | %d\n", 
-                       sellable[current_idx]->name, 
-                       sellable[current_idx]->type, 
-                       sellable[current_idx]->rating);
+            printf("\n--- Sellable Players ---\n");
+            printf("%-25s %-5s %-7s\n", "Name", "Type", "Rating");
+            printf("----------------------------------------\n");
+            for (int i = 0; i < sell_count; i++) {
+                printf("%-25s %-5s %-7d\n", 
+                       sellable[i]->name, 
+                       sellable[i]->type, 
+                       sellable[i]->rating);
+            }
+            printf("----------------------------------------\n");
 
-                printf("Enter direction (Next: D, Previous: A, Sell: S, Exit: 0): ");
-                char movement;
-                if (scanf(" %c", &movement) != 1) {
-                    clearInput();
-                    break;
-                }
-                clearInput();
+            printf("Enter player name to sell (or '0' to go back): ");
+            readLine(input, sizeof(input));
+            if (strcmp(input, "0") == 0) {
+                continue;
+            }
 
-                if (movement == '0') {
-                    break;
-                } else if (movement == 'D' || movement == 'd') {
-                    if (current_idx == sell_count - 1) {
-                        printf("Reached the end of the list. Returning to menu.\n");
-                        break;
-                    }
-                    current_idx++;
-                } else if (movement == 'A' || movement == 'a') {
-                    if (current_idx == 0) {
-                        printf("Reached the start of the list. Returning to menu.\n");
-                        break;
-                    }
-                    current_idx--;
-                } else if (movement == 'S' || movement == 's') {
-                    InventoryNode* found = sellable[current_idx];
-                    printf("Enter selling price for '%s' (coins) (0 to cancel): ", found->name);
-                    int price;
-                    if (scanf("%d", &price) != 1) { price = -1; clearInput(); continue; }
-                    clearInput();
-                    if (price <= 0) {
-                        printf("Sell cancelled.\n");
-                        continue;
-                    }
-                    
-                    printf("Confirm sell '%s' for %d coins? (1=Yes/0=No): ", found->name, price);
-                    int confirm;
-                    if (scanf("%d", &confirm) != 1) { confirm = 0; clearInput(); }
-                    clearInput();
+            InventoryNode* found = searchInventoryByName(user->inventory, input);
+            if (found == NULL) {
+                printf("Player '%s' not found in inventory.\n", input);
+                continue;
+            }
 
-                    if (confirm == 1) {
-                        InventoryNode* removed = removePlayerByName(user->inventory, found->name);
-                        if (removed != NULL) {
-                            addToMarketplace(&g_market, removed->name, removed->type, removed->rating, price);
-                            user->coins += price;
-                            printf("'%s' listed on marketplace for %d coins and you received %d coins.\n", removed->name, price, price);
-                            free(removed);
-                        }
-                        break;
-                    }
-                } else {
-                    printf("Invalid input.\n");
+            if (isPlayerInSquad(user->squad, found->name)) {
+                printf("Cannot sell '%s' because they are currently selected in your LineUp.\n", found->name);
+                continue;
+            }
+
+            printf("Player: %s | Type: %s | Rating: %d\n",
+                   found->name, found->type, found->rating);
+            printf("Enter selling price for '%s' (coins) (0 to cancel): ", found->name);
+            int price;
+            if (scanf("%d", &price) != 1) { price = -1; clearInput(); continue; }
+            clearInput();
+            if (price <= 0) {
+                printf("Sell cancelled.\n");
+                continue;
+            }
+            
+            printf("Confirm sell '%s' for %d coins? (1=Yes/0=No): ", found->name, price);
+            int confirm;
+            if (scanf("%d", &confirm) != 1) { confirm = 0; clearInput(); }
+            clearInput();
+
+            if (confirm == 1) {
+                InventoryNode* removed = removePlayerByName(user->inventory, found->name);
+                if (removed != NULL) {
+                    addToMarketplace(&g_market, removed->name, removed->type, removed->rating, price);
+                    user->coins += price;
+                    printf("'%s' listed on marketplace for %d coins and you received %d coins.\n", removed->name, price, price);
+                    free(removed);
                 }
             }
         } else if (choice == 6) {
