@@ -2258,6 +2258,7 @@ static void inventoryMenu(UserNode* user) {
         printf("3. Search by Rating Range\n");
         printf("4. Search by Name\n");
         printf("5. Sell Player\n");
+        printf("6. See Player\n");
         printf("0. Back\n");
         printf("Choice: ");
         if (scanf("%d", &choice) != 1) { choice = 0; clearInput(); }
@@ -2300,14 +2301,39 @@ static void inventoryMenu(UserNode* user) {
                 continue;
             }
 
-            displayAllUserCards(user->squad, user->inventory);
+            InventoryNode* sellable[1000];
+            int sell_count = 0;
+            InventoryNode* curr = user->inventory->head;
+            while(curr != NULL && sell_count < 1000) {
+                if (!isPlayerInSquad(user->squad, curr->name)) {
+                    sellable[sell_count++] = curr;
+                }
+                curr = curr->next;
+            }
+
+            if (sell_count == 0) {
+                printf("No players available to sell (all are in squad).\n");
+                continue;
+            }
+
+            printf("\n--- Sellable Players ---\n");
+            printf("%-25s %-5s %-7s\n", "Name", "Type", "Rating");
+            printf("----------------------------------------\n");
+            for (int i = 0; i < sell_count; i++) {
+                printf("%-25s %-5s %-7d\n", 
+                       sellable[i]->name, 
+                       sellable[i]->type, 
+                       sellable[i]->rating);
+            }
+            printf("----------------------------------------\n");
+
             printf("Enter player name to sell (or '0' to go back): ");
             readLine(input, sizeof(input));
             if (strcmp(input, "0") == 0) {
                 continue;
             }
 
-            InventoryNode* found = searchInventoryByName(user -> inventory, input);
+            InventoryNode* found = searchInventoryByName(user->inventory, input);
             if (found == NULL) {
                 printf("Player '%s' not found in inventory.\n", input);
                 continue;
@@ -2319,31 +2345,77 @@ static void inventoryMenu(UserNode* user) {
             }
 
             printf("Player: %s | Type: %s | Rating: %d\n",
-                   found -> name, found -> type, found -> rating);
-            printf("Enter selling price (coins): ");
+                   found->name, found->type, found->rating);
+            printf("Enter selling price for '%s' (coins) (0 to cancel): ", found->name);
             int price;
-            if (scanf("%d", &price) != 1) { price = -1; clearInput(); }
+            if (scanf("%d", &price) != 1) { price = -1; clearInput(); continue; }
             clearInput();
             if (price <= 0) {
-                printf("Invalid price.\n");
+                printf("Sell cancelled.\n");
                 continue;
             }
-
+            
             printf("Confirm sell '%s' for %d coins? (1=Yes/0=No): ", found->name, price);
             int confirm;
             if (scanf("%d", &confirm) != 1) { confirm = 0; clearInput(); }
             clearInput();
 
             if (confirm == 1) {
-                
-                InventoryNode* removed = removePlayerByName(user -> inventory, found->name);
+                InventoryNode* removed = removePlayerByName(user->inventory, found->name);
                 if (removed != NULL) {
-                    
-                    addToMarketplace(&g_market, removed -> name, removed -> type,
-                                     removed -> rating, price);
-                    printf("'%s' listed on marketplace for %d coins.\n",
-                           removed -> name, price);
+                    addToMarketplace(&g_market, removed->name, removed->type, removed->rating, price);
+                    user->coins += price;
+                    printf("'%s' listed on marketplace for %d coins and you received %d coins.\n", removed->name, price, price);
                     free(removed);
+                }
+            }
+        } else if (choice == 6) {
+            InventoryNode* see[1000];
+            int see_count = 0;
+            InventoryNode* curr = user->inventory->head;
+            while(curr != NULL && see_count < 1000) {
+                see[see_count++] = curr;
+                curr = curr->next;
+            }
+
+            if (see_count == 0) {
+                printf("Your inventory is empty.\n");
+                continue;
+            }
+
+            int current_idx = 0;
+            while (true) {
+                printf("\n--- See Player ---\n");
+                printf("Player %d of %d\n", current_idx + 1, see_count);
+                printf("%s | %s | %d\n", 
+                       see[current_idx]->name, 
+                       see[current_idx]->type, 
+                       see[current_idx]->rating);
+
+                printf("Enter direction (Next: D, Previous: A, Exit: 0): ");
+                char movement;
+                if (scanf(" %c", &movement) != 1) {
+                    clearInput();
+                    break;
+                }
+                clearInput();
+
+                if (movement == '0') {
+                    break;
+                } else if (movement == 'D' || movement == 'd') {
+                    if (current_idx == see_count - 1) {
+                        printf("Reached the end of the list. Returning to menu.\n");
+                        break;
+                    }
+                    current_idx++;
+                } else if (movement == 'A' || movement == 'a') {
+                    if (current_idx == 0) {
+                        printf("Reached the start of the list. Returning to menu.\n");
+                        break;
+                    }
+                    current_idx--;
+                } else {
+                    printf("Invalid input.\n");
                 }
             }
         } else {
@@ -2467,22 +2539,25 @@ static void marketplaceMenu(UserNode* user) {
 
                 if (match_count > 0) {
                     int current_idx = 0;
+                    char movement;
                     while (true) {
-                        printf("\nSelected Player: %-20s | %-4s | Rating: %-3d | Price: %-6d\n", 
-                               matches[current_idx]->name, matches[current_idx]->type, 
-                               matches[current_idx]->rating, matches[current_idx]->price);
-                        printf("Options: [N]ext, [P]rev, [B]uy, [0] Back\n");
-                        printf("Choice: ");
-                        char nav_choice[256];
-                        readLine(nav_choice, sizeof(nav_choice));
-                        
-                        if (strcasecmp(nav_choice, "0") == 0) {
+                        printf("\n%s | %s | %d | %d\n", matches[current_idx]->name, matches[current_idx]->type, matches[current_idx]->rating, matches[current_idx]->price);
+
+                        printf("Enter direction (Next: D, Previous: A, Buy: B, Exit: 0): ");
+                        if (scanf(" %c", &movement) != 1) {
+                            printf("\nInput cannot be recognised. Please enter a valid input...\n");
+                            clearInput();
+                            continue;
+                        }
+                        clearInput();
+
+                        if (movement == '0' || movement == 'o' || movement == 'O') {
                             break;
-                        } else if (strcasecmp(nav_choice, "N") == 0 || strcasecmp(nav_choice, "Next") == 0) {
+                        } else if (movement == 'D' || movement == 'd') {
                             current_idx = (current_idx + 1) % match_count;
-                        } else if (strcasecmp(nav_choice, "P") == 0 || strcasecmp(nav_choice, "Prev") == 0) {
+                        } else if (movement == 'A' || movement == 'a') {
                             current_idx = (current_idx - 1 + match_count) % match_count;
-                        } else if (strcasecmp(nav_choice, "B") == 0 || strcasecmp(nav_choice, "Buy") == 0) {
+                        } else if (movement == 'B' || movement == 'b') {
                             MarketNode* card = matches[current_idx];
                             if (user->coins >= card->price) {
                                 user->coins -= card->price;
