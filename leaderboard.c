@@ -178,7 +178,7 @@ void displayLeaderboard(Leaderboard* lb, int current_user_id) {
     }
 
     printf("\n=== Global Leaderboard ===\n");
-    printf("%-5s . %-20s . %-15s . %-5s . %-6s . %-5s . %-6s\n",
+    printf("%-5s | %-20s | %-15s | %-5s | %-6s | %-5s | %-6s\n",
            "Rank", "Name", "Level", "Wins", "Losses", "Draws", "Win %");
     printf("--------------------------------------------------------------------------------\n");
 
@@ -208,7 +208,7 @@ void displayLeaderboard(Leaderboard* lb, int current_user_id) {
                 win_perc = (current->wins / total_matches) * 100.0;
             }
             
-            printf("%-5d . %-20s . %-15s . %-5d . %-6d . %-5d . %-5.1f%%\n",
+            printf("%-5d | %-20s | %-15s | %-5d | %-6d | %-5d | %-5.1f%%\n",
                    rank, current -> user_name,
                    getLevelNameLB(current -> level), current -> wins, current -> losses, current->draws, win_perc);
             
@@ -222,12 +222,16 @@ void displayLeaderboard(Leaderboard* lb, int current_user_id) {
     
     if (current_user_node != NULL && current_user_rank > 8) {
         printf("--------------------------------------------------------------------------------\n");
+        for (int j = 0; j < 5; j++) {
+            printf("%-5s | %-20s | %-15s | %-5s | %-6s | %-5s | %-5s\n", ".", ".", ".", ".", ".", ".", ".");
+        }
+        printf("--------------------------------------------------------------------------------\n");
         float total_matches = current_user_node->wins + current_user_node->losses + current_user_node->draws;
         float win_perc = 0.0;
         if (total_matches > 0) {
             win_perc = (current_user_node->wins / total_matches) * 100.0;
         }
-        printf("%-5d . %-20s . %-15s . %-5d . %-6d . %-5d . %-5.1f%%\n",
+        printf("%-5d | %-20s | %-15s | %-5d | %-6d | %-5d | %-5.1f%%\n",
                current_user_rank, current_user_node -> user_name,
                getLevelNameLB(current_user_node -> level), current_user_node -> wins, current_user_node -> losses, current_user_node->draws, win_perc);
     }
