@@ -152,16 +152,22 @@ void displayAllUserCards(Squad* squad, PlayerInventory* inv) {
         curr = curr->next;
     }
     
-    qsort(cards, count, sizeof(TempCard), compareCards);
+    qsort(cards, SQUAD_SIZE, sizeof(TempCard), compareCards);
+    qsort(cards + SQUAD_SIZE, count - SQUAD_SIZE, sizeof(TempCard), compareCards);
     
     printf("\n=== All Player Cards ===\n");
-    printf("%-25s %-6s %-7s %-10s\n", "Player", "P Pos", "Rating", "Location");
-    printf("%-25s %-6s %-7s %-10s\n", "-------------------------", "------", "-------", "----------");
-    for (int i = 0; i < count; i++) {
-        char loc[20];
-        if (cards[i].in_squad) sprintf(loc, "Squad[%s]", squad->slots[cards[i].squad_slot].position_type);
-        else strcpy(loc, "Inventory");
-        printf("%-25s %-6s %-7d %-10s\n", cards[i].name, cards[i].type, cards[i].rating, loc);
+    printf("%-3s %-25s %-6s %-7s\n", "#", "Player", "P Pos", "Rating");
+    printf("%-3s %-25s %-6s %-7s\n", "---", "-------------------------", "------", "-------");
+    
+    for (int i = 0; i < SQUAD_SIZE && i < count; i++) {
+        printf("%-3d %-25s %-6s %-7d\n", i + 1, cards[i].name, cards[i].type, cards[i].rating);
+    }
+    
+    if (count > SQUAD_SIZE) {
+        printf("--------------------------------------------\n");
+        for (int i = SQUAD_SIZE; i < count; i++) {
+            printf("%-3d %-25s %-6s %-7d\n", i + 1, cards[i].name, cards[i].type, cards[i].rating);
+        }
     }
     printf("\n");
 }

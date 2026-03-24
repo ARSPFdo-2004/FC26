@@ -364,8 +364,7 @@ static void inventoryMenu(UserNode* user) {
 
     while (true) {
         printf("\n--- Inventory Menu ---\n");
-        printf("Your Coins: %d\n", user->coins);
-        printf("Your Coins: %d\n", user->coins);
+        printf("COINS: %d\n", user->coins);
         printf("1. View Inventory\n");
         printf("2. Search by Type\n");
         printf("3. Search by Rating Range\n");
@@ -503,8 +502,7 @@ static void marketplaceMenu(UserNode* user) {
 
     while (true) {
         printf("\n--- Marketplace Menu ---\n");
-        printf("Your Coins: %d\n", user->coins);
-        printf("Your Coins: %d\n", user->coins);
+        printf("COINS: %d\n", user->coins);
         printf("1. Purchase Player\n");
         printf("2. Search by Rating range\n");
         printf("3. Search by Rating range and Type\n");
