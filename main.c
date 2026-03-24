@@ -103,13 +103,14 @@ static void updateAllGlobalLevels() {
 }
 
 static void seedPredefinedUsers(void) {
-    static const char* names[5] = {
-        "ALPHASTRIKE", "BETAFORCE", "GAMMAKNIGHT", "DELTABLITZ", "EPSILONSTAR"
+    static const char* names[10] = {
+        "ALPHASTRIKE", "BETAFORCE", "GAMMAKNIGHT", "DELTABLITZ", "EPSILONSTAR",
+        "ZETASHIELD", "ETASTORM", "THETAFANG", "IOTABRINGER", "KAPPANULL"
     };
-    UserNode* u[5];
+    UserNode* u[10];
     int i;
 
-    for (i = 0; i < 5; i++) {
+    for (i = 0; i < 10; i++) {
         u[i] = addUser(&g_registry, names[i], "PASS123");
         if (u[i] == NULL) {
             u[i] = findUserByName(&g_registry, names[i]);
@@ -234,17 +235,23 @@ static void seedPredefinedUsers(void) {
     
     addMatchRecord(u[4], "BETAFORCE",   RESULT_LOSS, 0,   5);
 
-    for (i = 0; i < 5; i++) {
+    addMatchRecord(u[5], "BotPlayer1",  RESULT_WIN,  500, 1);
+    addMatchRecord(u[6], "BotPlayer2",  RESULT_WIN,  500, 1);
+    addMatchRecord(u[7], "BotPlayer3",  RESULT_WIN,  500, 1);
+    addMatchRecord(u[8], "BotPlayer1",  RESULT_WIN,  500, 1);
+    addMatchRecord(u[9], "BotPlayer2",  RESULT_WIN,  500, 1);
+
+    for (i = 0; i < 10; i++) {
         if (u[i] == NULL) continue;
         addToLeaderboard(&g_leaderboard, u[i]->id, u[i]->name,
-                         u[i]->total_wins, u[i]->match_history->total_losses, 
+                         u[i]->total_wins, u[i]->total_losses, u[i]->total_draws, 
                          getWinPercentage(u[i]->match_history), getWeeklyWinPercentage(u[i]->match_history), u[i]->level);
     }
     updateAllGlobalLevels();
 
     g_current_week = 6;
 
-    printf("5 predefined users loaded with match history and leaderboard entries.\n");
+    printf("10 predefined users loaded with match history and leaderboard entries.\n");
 }
 
 static void simulateMatch(UserNode* u1, UserNode* u2) {
@@ -325,10 +332,10 @@ static void simulateMatch(UserNode* u1, UserNode* u2) {
               red2, red1, yellow2, yellow1);
 
     updateLeaderboardEntry(&g_leaderboard, u1 -> id,
-                           u1 -> total_wins, u1 -> match_history->total_losses, 
+                           u1 -> total_wins, u1 -> match_history->total_losses, u1 -> total_draws, 
                            getWinPercentage(u1->match_history), getWeeklyWinPercentage(u1->match_history), u1 -> level);
     updateLeaderboardEntry(&g_leaderboard, u2 -> id,
-                           u2 -> total_wins, u2 -> match_history->total_losses, 
+                           u2 -> total_wins, u2 -> match_history->total_losses, u2 -> total_draws, 
                            getWinPercentage(u2->match_history), getWeeklyWinPercentage(u2->match_history), u2 -> level);
     
     updateAllGlobalLevels();
@@ -628,7 +635,7 @@ static void leaderboardMenu(UserNode* user) {
         if (choice == 0) {
             break;
         } else if (choice == 1) {
-            displayLeaderboard(&g_leaderboard);
+            displayLeaderboard(&g_leaderboard, -1);
         } else if (choice == 2) {
             int rank = getUserRank(&g_leaderboard, user -> id);
             if (rank == -1) {
@@ -780,12 +787,9 @@ int main(void) {
             if (newUser != NULL) {
                 initUserModules(newUser);
 
-                  addMatchRecord(newUser, "BotAlpha", RESULT_WIN,  500, 1);
-                  addMatchRecord(newUser, "BotBeta", RESULT_LOSS, 0,   1);
-                  addMatchRecord(newUser, "BotGamma", RESULT_DRAW, 250, 1);
-                  addMatchRecord(newUser, "BotDelta", RESULT_WIN,  500, 1);
+
                 addToLeaderboard(&g_leaderboard, newUser -> id,
-                                   newUser -> name, newUser->total_wins, newUser->total_losses, getWinPercentage(newUser->match_history), getWeeklyWinPercentage(newUser->match_history), newUser->level);
+                                   newUser -> name, newUser->total_wins, newUser->total_losses, newUser->total_draws, getWinPercentage(newUser->match_history), getWeeklyWinPercentage(newUser->match_history), newUser->level);
                 printf("Registration successful!\n");
                 printf("User ID: %d | Starting coins: %d\n",
                        newUser -> id, newUser -> coins);
@@ -815,7 +819,7 @@ int main(void) {
             traverseUsers(&g_registry);
 
         } else if (choice == 4) {
-            displayLeaderboard(&g_leaderboard);
+            displayLeaderboard(&g_leaderboard, -1);
 
         } else {
             printf("Invalid choice.\n");

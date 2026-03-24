@@ -20,7 +20,7 @@ void initLeaderboard(Leaderboard* lb) {
 }
 
 void addToLeaderboard(Leaderboard* lb, int user_id, const char* name,
-                      int wins, int losses, float win_percentage, float week_win_percentage, int level) {
+                      int wins, int losses, int draws, float win_percentage, float week_win_percentage, int level) {
     LBNode* newNode = (LBNode *) malloc(sizeof(LBNode));
     if (newNode == NULL) {
         printf("Memory allocation failed\n");
@@ -32,6 +32,7 @@ void addToLeaderboard(Leaderboard* lb, int user_id, const char* name,
     newNode -> user_name[MAX_NAME_LEN - 1] = '\0';
     newNode -> wins  = wins;
     newNode -> losses = losses;
+    newNode -> draws = draws;
     newNode -> win_percentage = win_percentage;
     newNode -> week_win_percentage = week_win_percentage;
     newNode -> level = level;
@@ -90,7 +91,7 @@ void removeFromLeaderboard(Leaderboard* lb, int user_id) {
 }
 
 void updateLeaderboardEntry(Leaderboard* lb, int user_id,
-                             int wins, int losses, float win_percentage, float week_win_percentage, int level) {
+                             int wins, int losses, int draws, float win_percentage, float week_win_percentage, int level) {
     if (lb -> head == NULL) {
         return;
     }
@@ -102,6 +103,7 @@ void updateLeaderboardEntry(Leaderboard* lb, int user_id,
         if (current -> user_id == user_id) {
             current -> wins  = wins;
             current -> losses = losses;
+            current -> draws = draws;
             current -> win_percentage = win_percentage;
             current -> week_win_percentage = week_win_percentage;
             current -> level = level;
@@ -133,6 +135,7 @@ void sortLeaderboard(Leaderboard* lb) {
                 int  tmp_id    = current -> user_id;
                 int  tmp_wins  = current -> wins;
                 int  tmp_losses = current -> losses;
+                int  tmp_draws  = current -> draws;
                 float tmp_win_perc = current -> win_percentage;
                 float tmp_week_win_perc = current -> week_win_percentage;
                 int  tmp_level = current -> level;
@@ -142,6 +145,7 @@ void sortLeaderboard(Leaderboard* lb) {
                 current -> user_id = next_node -> user_id;
                 current -> wins    = next_node -> wins;
                 current -> losses  = next_node -> losses;
+                current -> draws   = next_node -> draws;
                 current -> win_percentage = next_node -> win_percentage;
                 current -> week_win_percentage = next_node -> week_win_percentage;
                 current -> level   = next_node -> level;
@@ -150,6 +154,7 @@ void sortLeaderboard(Leaderboard* lb) {
                 next_node -> user_id = tmp_id;
                 next_node -> wins    = tmp_wins;
                 next_node -> losses  = tmp_losses;
+                next_node -> draws   = tmp_draws;
                 next_node -> win_percentage = tmp_win_perc;
                 next_node -> week_win_percentage = tmp_week_win_perc;
                 next_node -> level   = tmp_level;
@@ -166,30 +171,67 @@ void sortLeaderboard(Leaderboard* lb) {
     }
 }
 
-void displayLeaderboard(Leaderboard* lb) {
+void displayLeaderboard(Leaderboard* lb, int current_user_id) {
     if (lb -> head == NULL) {
         printf("Leaderboard is empty.\n");
         return;
     }
 
     printf("\n=== Global Leaderboard ===\n");
-    printf("%-5s %-20s %-15s %-5s %-6s %-12s\n",
-           "Rank", "Name", "Level", "Wins", "Losses", "Win %");
-    printf("%-5s %-20s %-15s %-5s %-6s %-12s\n",
-           "----", "--------------------",
-           "---------------", "-----", "------", "------------");
+    printf("%-5s . %-20s . %-15s . %-5s . %-6s . %-5s . %-6s\n",
+           "Rank", "Name", "Level", "Wins", "Losses", "Draws", "Win %");
+    printf("--------------------------------------------------------------------------------\n");
 
     LBNode* current = lb -> head;
     int rank = 1;
     int i;
+    int last_level = -1;
+    int displayed_count = 0;
+    
+    LBNode* current_user_node = NULL;
+    int current_user_rank = -1;
 
     for (i = 0; i < lb -> count; i++) {
-        printf("%-5d %-20s %-15s %-5d %-6d %-11.1f%%\n",
-               rank, current -> user_name,
-               getLevelNameLB(current -> level), current -> wins, current -> losses, current -> week_win_percentage);
+        if (current -> user_id == current_user_id) {
+            current_user_node = current;
+            current_user_rank = rank;
+        }
+
+        if (displayed_count < 8) {
+            if (last_level != -1 && last_level != current->level) {
+                printf("--------------------------------------------------------------------------------\n");
+            }
+            
+            float total_matches = current->wins + current->losses + current->draws;
+            float win_perc = 0.0;
+            if (total_matches > 0) {
+                win_perc = (current->wins / total_matches) * 100.0;
+            }
+            
+            printf("%-5d . %-20s . %-15s . %-5d . %-6d . %-5d . %-5.1f%%\n",
+                   rank, current -> user_name,
+                   getLevelNameLB(current -> level), current -> wins, current -> losses, current->draws, win_perc);
+            
+            last_level = current->level;
+            displayed_count++;
+        }
+        
         current = current -> next;
         rank++;
     }
+    
+    if (current_user_node != NULL && current_user_rank > 8) {
+        printf("--------------------------------------------------------------------------------\n");
+        float total_matches = current_user_node->wins + current_user_node->losses + current_user_node->draws;
+        float win_perc = 0.0;
+        if (total_matches > 0) {
+            win_perc = (current_user_node->wins / total_matches) * 100.0;
+        }
+        printf("%-5d . %-20s . %-15s . %-5d . %-6d . %-5d . %-5.1f%%\n",
+               current_user_rank, current_user_node -> user_name,
+               getLevelNameLB(current_user_node -> level), current_user_node -> wins, current_user_node -> losses, current_user_node->draws, win_perc);
+    }
+    
     printf("\n");
 }
 
