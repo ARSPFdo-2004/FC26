@@ -364,6 +364,8 @@ static void inventoryMenu(UserNode* user) {
 
     while (true) {
         printf("\n--- Inventory Menu ---\n");
+        printf("Your Coins: %d\n", user->coins);
+        printf("Your Coins: %d\n", user->coins);
         printf("1. View Inventory\n");
         printf("2. Search by Type\n");
         printf("3. Search by Rating Range\n");
@@ -377,17 +379,21 @@ static void inventoryMenu(UserNode* user) {
         if (choice == 0) {
             break;
         } else if (choice == 1) {
-            displayInventory(user -> inventory);
+            displayAllUserCards(user->squad, user->inventory);
         } else if (choice == 2) {
             printf("Enter type (FW/MF/DF/GK): ");
             readLine(input, sizeof(input));
-            searchInventoryByType(user -> inventory, input);
+            if(strcasecmp(input,"FW")!=0 && strcasecmp(input,"MF")!=0 && strcasecmp(input,"DF")!=0 && strcasecmp(input,"GK")!=0){
+                  printf("invalid position\n");
+                  continue;
+              }
+              searchInventoryByType(user -> inventory, input);
         } else if (choice == 3) {
             int min_r, max_r;
             printf("Enter min rating: ");
-            if (scanf("%d", &min_r) != 1) { min_r = 0; clearInput(); }
+            if (scanf("%d", &min_r) != 1) { printf("invalid\n"); clearInput(); continue; }
             printf("Enter max rating: ");
-            if (scanf("%d", &max_r) != 1) { max_r = 0; clearInput(); }
+            if (scanf("%d", &max_r) != 1) { printf("invalid\n"); clearInput(); continue; }
             clearInput();
             searchInventoryByRating(user -> inventory, min_r, max_r);
         } else if (choice == 4) {
@@ -407,7 +413,7 @@ static void inventoryMenu(UserNode* user) {
                 continue;
             }
 
-            displayInventory(user -> inventory);
+            displayAllUserCards(user->squad, user->inventory);
             printf("Enter player name to sell: ");
             readLine(input, sizeof(input));
 
@@ -497,6 +503,8 @@ static void marketplaceMenu(UserNode* user) {
 
     while (true) {
         printf("\n--- Marketplace Menu ---\n");
+        printf("Your Coins: %d\n", user->coins);
+        printf("Your Coins: %d\n", user->coins);
         printf("1. Purchase Player\n");
         printf("2. Search by Rating range\n");
         printf("3. Search by Rating range and Type\n");
@@ -517,11 +525,19 @@ static void marketplaceMenu(UserNode* user) {
                 printf("Position/Type (FW/MF/DF/GK): ");
                 readLine(type, sizeof(type));
             }
+              if(strcasecmp(type,"FW")!=0 && strcasecmp(type,"MF")!=0 && strcasecmp(type,"DF")!=0 && strcasecmp(type,"GK")!=0 && strlen(type)>0){
+                  printf("invalid position\n");
+                  continue;
+              }
+              if(strcasecmp(type,"FW")!=0 && strcasecmp(type,"MF")!=0 && strcasecmp(type,"DF")!=0 && strcasecmp(type,"GK")!=0 && strlen(type)>0){
+                  printf("invalid position\n");
+                  continue;
+              }
             if (choice == 1 || choice == 2 || choice == 3 || choice == 4) {
-                printf("Min Rating (0 for no limit): ");
-                if (scanf("%d", &min_r) != 1) { min_r = 0; clearInput(); }
-                printf("Max Rating (999 for no limit): ");
-                if (scanf("%d", &max_r) != 1) { max_r = 999; clearInput(); }
+                printf("Min Rating: ");
+                if (scanf("%d", &min_r) != 1) { printf("invalid\n"); clearInput(); continue; }
+                printf("Max Rating: ");
+                if (scanf("%d", &max_r) != 1) { printf("invalid\n"); clearInput(); continue; }
                 clearInput();
             }
             if (choice == 4) {
