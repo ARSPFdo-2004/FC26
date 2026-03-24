@@ -176,7 +176,7 @@ void freeMatchStack(MatchStack* stack) {
     }
 }
 
-void displayStatistics(MatchStack* stack, int week, int match_num) {
+void displayStatistics(MatchStack* stack, int week, int match_num, const char* user_name) {
     MatchRecord* curr = stack->top;
     while (curr) {
         if (curr->week == week && curr->match_number == match_num) {
@@ -184,7 +184,7 @@ void displayStatistics(MatchStack* stack, int week, int match_num) {
             printf("                        === Match Statistics ===\n");
             printf("                       Opponent: %s\n", curr->opponent_name);
             printf("-----------------------------------------------------------------------\n");
-            printf("             %20s | %-20s\n", "You", curr->opponent_name);
+            printf("             %20s | %-20s\n", user_name, curr->opponent_name);
             printf("-----------------------------------------------------------------------\n");
             printf("      Goals: %20d | %-20d\n", curr->my_goals, curr->opp_goals);
             printf("Shots on Goal: %18d | %-20d\n", curr->my_shots, curr->opp_shots);

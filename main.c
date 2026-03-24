@@ -692,7 +692,7 @@ static void matchHistoryMenu(UserNode* user) {
             printf("Enter Match Number: ");
             if (scanf("%d", &match_no) != 1) match_no = 0;
             clearInput();
-            displayStatistics(user->match_history, week, match_no);
+            displayStatistics(user->match_history, week, match_no, user->name);
         } else {
             printf("Invalid choice.\n");
         }

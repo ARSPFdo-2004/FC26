@@ -60,7 +60,7 @@ void pushMatch(MatchStack* stack, const char* opponent,
                int my_yellow_cards, int opp_yellow_cards);
 void displayMatchHistory(MatchStack* stack);
 
-void displayStatistics(MatchStack* stack, int week, int match_num);
+void displayStatistics(MatchStack* stack, int week, int match_num, const char* user_name);
 
 float getWinPercentage(MatchStack* stack);
 
