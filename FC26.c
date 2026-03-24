@@ -2258,6 +2258,7 @@ static void inventoryMenu(UserNode* user) {
         printf("3. Search by Rating Range\n");
         printf("4. Search by Name\n");
         printf("5. Sell Player\n");
+        printf("6. See Player\n");
         printf("0. Back\n");
         printf("Choice: ");
         if (scanf("%d", &choice) != 1) { choice = 0; clearInput(); }
@@ -2319,13 +2320,10 @@ static void inventoryMenu(UserNode* user) {
             while (true) {
                 printf("\n--- Sell Player ---\n");
                 printf("Player %d of %d\n", current_idx + 1, sell_count);
-                printf("%-25s %-5s %-7s\n", "Name", "Type", "Rating");
-                printf("----------------------------------------\n");
-                printf("%-25s %-5s %-7d\n", 
+                printf("%s | %s | %d\n", 
                        sellable[current_idx]->name, 
                        sellable[current_idx]->type, 
                        sellable[current_idx]->rating);
-                printf("----------------------------------------\n");
 
                 printf("Enter direction (Next: D, Previous: A, Sell: S, Exit: 0): ");
                 char movement;
@@ -2369,11 +2367,61 @@ static void inventoryMenu(UserNode* user) {
                         InventoryNode* removed = removePlayerByName(user->inventory, found->name);
                         if (removed != NULL) {
                             addToMarketplace(&g_market, removed->name, removed->type, removed->rating, price);
-                            printf("'%s' listed on marketplace for %d coins.\n", removed->name, price);
+                            user->coins += price;
+                            printf("'%s' listed on marketplace for %d coins and you received %d coins.\n", removed->name, price, price);
                             free(removed);
                         }
                         break;
                     }
+                } else {
+                    printf("Invalid input.\n");
+                }
+            }
+        } else if (choice == 6) {
+            InventoryNode* see[1000];
+            int see_count = 0;
+            InventoryNode* curr = user->inventory->head;
+            while(curr != NULL && see_count < 1000) {
+                see[see_count++] = curr;
+                curr = curr->next;
+            }
+
+            if (see_count == 0) {
+                printf("Your inventory is empty.\n");
+                continue;
+            }
+
+            int current_idx = 0;
+            while (true) {
+                printf("\n--- See Player ---\n");
+                printf("Player %d of %d\n", current_idx + 1, see_count);
+                printf("%s | %s | %d\n", 
+                       see[current_idx]->name, 
+                       see[current_idx]->type, 
+                       see[current_idx]->rating);
+
+                printf("Enter direction (Next: D, Previous: A, Exit: 0): ");
+                char movement;
+                if (scanf(" %c", &movement) != 1) {
+                    clearInput();
+                    break;
+                }
+                clearInput();
+
+                if (movement == '0') {
+                    break;
+                } else if (movement == 'D' || movement == 'd') {
+                    if (current_idx == see_count - 1) {
+                        printf("Reached the end of the list. Returning to menu.\n");
+                        break;
+                    }
+                    current_idx++;
+                } else if (movement == 'A' || movement == 'a') {
+                    if (current_idx == 0) {
+                        printf("Reached the start of the list. Returning to menu.\n");
+                        break;
+                    }
+                    current_idx--;
                 } else {
                     printf("Invalid input.\n");
                 }
@@ -2501,10 +2549,7 @@ static void marketplaceMenu(UserNode* user) {
                     int current_idx = 0;
                     char movement;
                     while (true) {
-                        printf("\n%-25s %-5s %-7s %-7s\n", "Name", "Type", "Rating", "Price");
-                        printf("%-25s %-5s %-7s %-7s\n", "-------------------------", "-----", "-------", "-------");
-                        printf("%-25s %-5s %-7d %-7d\n", matches[current_idx]->name, matches[current_idx]->type, matches[current_idx]->rating, matches[current_idx]->price);
-                        printf("%-25s %-5s %-7s %-7s\n", "-------------------------", "-----", "-------", "-------");
+                        printf("\n%s | %s | %d | %d\n", matches[current_idx]->name, matches[current_idx]->type, matches[current_idx]->rating, matches[current_idx]->price);
 
                         printf("Enter direction (Next: D, Previous: A, Buy: B, Exit: 0): ");
                         if (scanf(" %c", &movement) != 1) {
