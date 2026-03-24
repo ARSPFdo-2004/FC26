@@ -104,7 +104,7 @@ void displayMatchHistory(MatchStack* stack) {
         return;
     }
 
-    printf("\n=== Match History (Recent 2 Weeks Max) ===\n");
+    printf("\n=== Match History (Recent 3 Weeks) ===\n");
     printf("%-5s %-20s %-7s %-10s %-5s\n",
            "#", "Opponent", "Result", "Match No", "Week");
     printf("%-5s %-20s %-7s %-10s %-5s\n",
@@ -112,37 +112,27 @@ void displayMatchHistory(MatchStack* stack) {
 
     MatchRecord* current = stack -> top;
     int num = 1;
-
-    int latest_week = -1;
-    int prev_week = -1;
-
-    if (current != NULL) {
-        latest_week = current->week;
-    }
+    
+    int min_week = stack->current_week - 3;
+    if (min_week < 1) min_week = 1;
 
     while (current != NULL) {
-        if (current->week != latest_week) {
-            if (prev_week == -1) {
-                prev_week = current->week;
-            } else if (current->week != prev_week) {
-                break; // Stop after maximum 2 distinct weeks
+        if (current->week >= min_week && current->week < stack->current_week) {
+            const char* result_str;
+            if (current -> result == RESULT_WIN) {
+                result_str = "WIN";
+            } else if (current -> result == RESULT_LOSS) {
+                result_str = "LOSS";
+            } else {
+                result_str = "DRAW";
             }
-        }
 
-        const char* result_str;
-        if (current -> result == RESULT_WIN) {
-            result_str = "WIN";
-        } else if (current -> result == RESULT_LOSS) {
-            result_str = "LOSS";
-        } else {
-            result_str = "DRAW";
+            printf("%-5d %-20s %-7s %-10d %-5d\n",
+                   num, current -> opponent_name,
+                   result_str, current -> match_number, current -> week);
+            num++;
         }
-
-        printf("%-5d %-20s %-7s %-10d %-5d\n",
-               num, current -> opponent_name,
-               result_str, current -> match_number, current -> week);
         current = current -> next;
-        num++;
     }
 
     printf("\nTotal: %d matches | %d wins | %d losses | %d draws\n",

@@ -253,6 +253,13 @@ static void seedPredefinedUsers(void) {
 
     for (i = 0; i < 18; i++) {
         if (u[i] == NULL) continue;
+
+        if (u[i]->match_history) {
+            u[i]->match_history->current_week = 6;
+            u[i]->match_history->week_matches = 0;
+            u[i]->match_history->week_wins = 0;
+        }
+
         addToLeaderboard(&g_leaderboard, u[i]->id, u[i]->name,
                          u[i]->total_wins, u[i]->total_losses, u[i]->total_draws,
                          getWinPercentage(u[i]->match_history), getWeeklyWinPercentage(u[i]->match_history), u[i]->level);
@@ -802,14 +809,14 @@ int main(void) {
                       "ALPHASTRIKE", "BETAFORCE", "GAMMAKNIGHT", "DELTABLITZ", "EPSILONSTAR",
                       "ZETASHIELD", "ETASTORM", "THETAFANG", "IOTABRINGER", "KAPPANULL"
                   };
-                  for (int w = 1; w <= 3; w++) {
+                  for (int w = g_current_week - 3; w < g_current_week; w++) {
+                      if (w < 1) continue;
                       for (int m = 1; m <= 10; m++) {
                           const char* oppName = bot_names[rand() % 10];
                           char res = (m % 3 == 0) ? RESULT_WIN : ((m % 2 == 0) ? RESULT_DRAW : RESULT_LOSS);
                           int points = (res == RESULT_WIN) ? 500 : ((res == RESULT_DRAW) ? 250 : 0);
                           addMatchRecord(newUser, oppName, res, points, w);
                       }
-                      resetWeeklyStats(newUser->match_history);
                   }
 
                   // Reset leaderboard totals to keep the user effectively at 0/0/0
@@ -817,8 +824,9 @@ int main(void) {
                   newUser->total_losses = 0;
                   newUser->total_draws = 0;
                   newUser->coins = 15000;
-                  
+
                   if (newUser->match_history) {
+                      newUser->match_history->current_week = g_current_week;
                       newUser->match_history->total_wins = 0;
                       newUser->match_history->total_losses = 0;
                       newUser->match_history->total_draws = 0;
