@@ -104,7 +104,7 @@ void displayMatchHistory(MatchStack* stack) {
         return;
     }
 
-    printf("\n=== Match History (Recent 3 Weeks) ===\n");
+    printf("\n=== Match History ===\n");
     printf("%-5s %-20s %-7s %-10s %-5s\n",
            "#", "Opponent", "Result", "Match No", "Week");
     printf("%-5s %-20s %-7s %-10s %-5s\n",
@@ -117,7 +117,7 @@ void displayMatchHistory(MatchStack* stack) {
     if (min_week < 1) min_week = 1;
 
     while (current != NULL) {
-        if (current->week >= min_week && current->week < stack->current_week) {
+        if (current->week >= min_week && current->week <= stack->current_week) {
             const char* result_str;
             if (current -> result == RESULT_WIN) {
                 result_str = "WIN";
@@ -167,9 +167,9 @@ void freeMatchStack(MatchStack* stack) {
 }
 
 void displayStatistics(MatchStack* stack, int week, int match_num, const char* user_name) {
-    if (week < stack->current_week - 3 || week > stack->current_week - 1) {
-        printf("Statistics are only available for the last 3 weeks (Weeks %d, %d, %d).\n", 
-               stack->current_week - 1, stack->current_week - 2, stack->current_week - 3);
+    if (week < stack->current_week - 3 || week > stack->current_week) {
+        printf("Statistics are only available for the last few weeks (Weeks %d to %d).\n", 
+               stack->current_week - 3, stack->current_week);
         return;
     }
     

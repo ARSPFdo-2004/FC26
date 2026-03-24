@@ -702,7 +702,7 @@ static void matchHistoryMenu(UserNode* user) {
             displayMatchHistory(user -> match_history);
         } else if (choice == 2) {
             int cw = user->match_history->current_week;
-            printf("\n(Current Week is %d. You can view stats for weeks %d, %d, %d)\n", cw, cw-1, cw-2, cw-3);
+            printf("\n(Current Week is %d. You can view stats from week %d to %d)\n", cw, cw-3 > 1 ? cw-3 : 1, cw);
             int week, match_no;
             printf("Enter Week: ");
             if (scanf("%d", &week) != 1) week = 0;
