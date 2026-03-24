@@ -173,20 +173,20 @@ void displayLeaderboard(Leaderboard* lb) {
     }
 
     printf("\n=== Global Leaderboard ===\n");
-    printf("%-5s %-6s %-20s %-15s %-5s %-6s %-8s %-12s\n",
-           "Rank", "ID", "Name", "Level", "Wins", "Losses", "Win %", "Week Win %");
-    printf("%-5s %-6s %-20s %-15s %-5s %-6s %-8s %-12s\n",
-           "----", "------", "--------------------",
-           "---------------", "-----", "------", "-------", "------------");
+    printf("%-5s %-20s %-15s %-5s %-6s %-12s\n",
+           "Rank", "Name", "Level", "Wins", "Losses", "Win %");
+    printf("%-5s %-20s %-15s %-5s %-6s %-12s\n",
+           "----", "--------------------",
+           "---------------", "-----", "------", "------------");
 
     LBNode* current = lb -> head;
     int rank = 1;
     int i;
 
     for (i = 0; i < lb -> count; i++) {
-        printf("%-5d %-6d %-20s %-15s %-5d %-6d %-7.1f%% %-11.1f%%\n",
-               rank, current -> user_id, current -> user_name,
-               getLevelNameLB(current -> level), current -> wins, current -> losses, current -> win_percentage, current -> week_win_percentage);
+        printf("%-5d %-20s %-15s %-5d %-6d %-11.1f%%\n",
+               rank, current -> user_name,
+               getLevelNameLB(current -> level), current -> wins, current -> losses, current -> week_win_percentage);
         current = current -> next;
         rank++;
     }

@@ -53,12 +53,16 @@ UserNode* addUser(UserRegistry* registry, const char* name, const char* password
     newNode -> total_draws  = 0;
     newNode -> week_wins    = 0;
     newNode -> week_matches = 0;
-    newNode -> reward_history_count = 0;
-    for(int i=0; i<4; i++) {
-        newNode -> past_week_levels[i] = 0;
-        newNode -> past_week_ranks[i] = 0;
-        newNode -> past_week_rewards[i] = 0;
-        newNode -> past_weeks[i] = 0;
+    newNode -> reward_history_count = 5;
+    
+    // Default 5 weeks history simulating previously varying ranks
+    int default_ranks[5] = {30, 50, 75, 100, 140}; // Example ranks
+    int default_levels[5] = {5, 4, 3, 2, 1};       // Pro 1, Pro 2, Pro 3, Amateur 1, Amateur 2
+    for(int i=0; i<5; i++) {
+        newNode -> past_week_levels[i] = default_levels[i];
+        newNode -> past_week_ranks[i] = default_ranks[i];
+        newNode -> past_week_rewards[i] = getWeeklyReward(default_levels[i]);
+        newNode -> past_weeks[i] = 5 - i; 
     }
     newNode -> inventory    = NULL;
     newNode -> squad        = NULL;
@@ -156,19 +160,18 @@ const char* getLevelName(int level) {
     return LEVEL_NAMES[level];
 }
 
-void updateUserLevel(UserNode* user) {
-    int wins = user -> total_wins;
+void updateUserLevel(UserNode* user, int rank) {
+    if (rank <= 0) return;
     int new_level;
 
-    if (wins >= 45) new_level = 9;
-    else if (wins >= 40) new_level = 8;
-    else if (wins >= 35) new_level = 7;
-    else if (wins >= 28) new_level = 6;
-    else if (wins >= 21) new_level = 5;
-    else if (wins >= 15) new_level = 4;
-    else if (wins >= 10) new_level = 3;
-    else if (wins >= 6)  new_level = 2;
-    else if (wins >= 3)  new_level = 1;
+    if (rank <= 5) new_level = 8;
+    else if (rank <= 15) new_level = 7;
+    else if (rank <= 25) new_level = 6;
+    else if (rank <= 45) new_level = 5;
+    else if (rank <= 65) new_level = 4;
+    else if (rank <= 85) new_level = 3;
+    else if (rank <= 125) new_level = 2;
+    else if (rank <= 165) new_level = 1;
     else                 new_level = 0;
 
     if (new_level != user -> level) {

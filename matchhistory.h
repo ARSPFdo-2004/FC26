@@ -27,6 +27,10 @@ typedef struct MatchRecord {
     int  opp_fouls;
     int  my_offsides;
     int  opp_offsides;
+    int  my_red_cards;
+    int  opp_red_cards;
+    int  my_yellow_cards;
+    int  opp_yellow_cards;
     struct MatchRecord* next;
 } MatchRecord;
 
@@ -51,7 +55,9 @@ void pushMatch(MatchStack* stack, const char* opponent,
                int my_shots, int opp_shots,
                int my_assists, int opp_assists,
                int my_fouls, int opp_fouls,
-               int my_offsides, int opp_offsides);
+               int my_offsides, int opp_offsides,
+               int my_red_cards, int opp_red_cards,
+               int my_yellow_cards, int opp_yellow_cards);
 void displayMatchHistory(MatchStack* stack);
 
 void displayStatistics(MatchStack* stack, int week, int match_num);

@@ -71,14 +71,35 @@ static void addMatchRecord(UserNode* user, const char* opponent,
     int opp_fouls = rand() % 6;
     int offsides = rand() % 4;
     int opp_offsides = rand() % 4;
+    int red_cards = rand() % 2;
+    int opp_red_cards = rand() % 2;
+    int yellow_cards = rand() % 4;
+    int opp_yellow_cards = rand() % 4;
 
     pushMatch(user -> match_history, opponent, result, coins, week,
               goals_for, goals_against, shots, opp_shots, assists, opp_assists,
-              fouls, opp_fouls, offsides, opp_offsides);
+              fouls, opp_fouls, offsides, opp_offsides,
+              red_cards, opp_red_cards, yellow_cards, opp_yellow_cards);
     user -> total_wins   = user -> match_history->total_wins;
     user -> total_losses = user -> match_history->total_losses;
     user -> total_draws  = user -> match_history->total_draws;
     user -> coins += coins;
+}
+
+static void updateAllGlobalLevels() {
+    if (g_leaderboard.head == NULL) return;
+    LBNode* curr = g_leaderboard.head;
+    int rank = 1;
+    int count = g_leaderboard.count;
+    for (int i = 0; i < count; i++) {
+        UserNode* user = findUserByID(&g_registry, curr->user_id);
+        if (user) {
+            updateUserLevel(user, rank);
+            curr->level = user->level;
+        }
+        curr = curr->next;
+        rank++;
+    }
 }
 
 static void seedPredefinedUsers(void) {
@@ -215,11 +236,11 @@ static void seedPredefinedUsers(void) {
 
     for (i = 0; i < 5; i++) {
         if (u[i] == NULL) continue;
-        updateUserLevel(u[i]);
         addToLeaderboard(&g_leaderboard, u[i]->id, u[i]->name,
                          u[i]->total_wins, u[i]->match_history->total_losses, 
                          getWinPercentage(u[i]->match_history), getWeeklyWinPercentage(u[i]->match_history), u[i]->level);
     }
+    updateAllGlobalLevels();
 
     g_current_week = 6;
 
@@ -296,13 +317,12 @@ static void simulateMatch(UserNode* u1, UserNode* u2) {
 
     pushMatch(u1 -> match_history, u2 -> name, result1, coins1, g_current_week,
               goals1, goals2, shots1, shots2, assists1, assists2,
-              fouls1, fouls2, offsides1, offsides2);
+              fouls1, fouls2, offsides1, offsides2,
+              red1, red2, yellow1, yellow2);
     pushMatch(u2 -> match_history, u1 -> name, result2, coins2, g_current_week,
               goals2, goals1, shots2, shots1, assists2, assists1,
-              fouls2, fouls1, offsides2, offsides1);
-
-    updateUserLevel(u1);
-    updateUserLevel(u2);
+              fouls2, fouls1, offsides2, offsides1,
+              red2, red1, yellow2, yellow1);
 
     updateLeaderboardEntry(&g_leaderboard, u1 -> id,
                            u1 -> total_wins, u1 -> match_history->total_losses, 
@@ -310,6 +330,8 @@ static void simulateMatch(UserNode* u1, UserNode* u2) {
     updateLeaderboardEntry(&g_leaderboard, u2 -> id,
                            u2 -> total_wins, u2 -> match_history->total_losses, 
                            getWinPercentage(u2->match_history), getWeeklyWinPercentage(u2->match_history), u2 -> level);
+    
+    updateAllGlobalLevels();
 }
 
 static void inventoryMenu(UserNode* user) {
@@ -612,7 +634,7 @@ static void leaderboardMenu(UserNode* user) {
             if (rank == -1) {
                 printf("You are not on the leaderboard yet.\n");
             } else {
-                printf("\n%s — Rank: #%d | Level: %s | Wins: %d\n",
+                printf("\n%s FC26 Rank: #%d | Level: %s | Wins: %d\n",
                        user -> name, rank,
                        getLevelName(user -> level), user -> total_wins);
             }
@@ -621,24 +643,18 @@ static void leaderboardMenu(UserNode* user) {
             printf("%-6s | %-15s | %-6s | %-15s\n", "Week", "Level", "Rank", "Reward (Coins)");
             printf("-----------------------------------------------------\n");
             
-            int current_rank = getUserRank(&g_leaderboard, user->id);
-            if (current_rank <= 0) current_rank = 1;
-            int sim_level = user->level;
-            
-            for (int i = 4; i >= 1; i--) {
-                int wk = (g_current_week > i) ? (g_current_week - i) : i;
-                int rank_sim = current_rank + (4 - i);
-                if (rank_sim < 1) rank_sim = 1;
-                
-                  int reward = getWeeklyReward(sim_level) + ((1000 / rank_sim) * wk);
-                printf("Week %-1d | %-15s | #%-5d | %d\n", wk, getLevelName(sim_level), rank_sim, reward);
-                
-                if (sim_level > 0 && rand() % 2 == 0) {
-                    sim_level--;
+            if (user->reward_history_count > 0) {
+                for (int i = 0; i < user->reward_history_count; i++) {
+                    printf("Week %-1d | %-15s | #%-5d | %d\n", 
+                           user->past_weeks[i],
+                           getLevelName(user->past_week_levels[i]), 
+                           user->past_week_ranks[i], 
+                           user->past_week_rewards[i]);
                 }
+            } else {
+                printf("No weekly rewards history available.\n");
             }
             printf("-----------------------------------------------------\n");
-            
         } else {
             printf("Invalid choice.\n");
         }
@@ -650,26 +666,28 @@ static void matchHistoryMenu(UserNode* user) {
 
     while (true) {
         printf("\n--- Match History Menu (%s) ---\n", user -> name);
-          printf("1. Match History\n");
-          printf("2. Statistics\n");
-          printf("0. Back\n");
-          printf("Choice: ");
-          if (scanf("%d", &choice) != 1) { choice = 0; clearInput(); }
-          clearInput();
+        printf("1. Match History\n");
+        printf("2. Statistics\n");
+        printf("0. Back\n");
+        printf("Choice: ");
+        if (scanf("%d", &choice) != 1) { choice = 0; clearInput(); }
+        clearInput();
 
-          if (choice == 0) {
-              break;
-          } else if (choice == 1) {
-              displayMatchHistory(user -> match_history);
-          } else if (choice == 2) {
-              int week, match_no;
-              printf("Enter Week: ");
-              if (scanf("%d", &week) != 1) week = 0;
-              clearInput();
-              printf("Enter Match Number: ");
-              if (scanf("%d", &match_no) != 1) match_no = 0;
-              clearInput();
-              displayStatistics(user->match_history, week, match_no);
+        if (choice == 0) {
+            break;
+        } else if (choice == 1) {
+            displayMatchHistory(user -> match_history);
+        } else if (choice == 2) {
+            int week, match_no;
+            printf("Enter Week: ");
+            if (scanf("%d", &week) != 1) week = 0;
+            clearInput();
+            printf("Enter Match Number: ");
+            if (scanf("%d", &match_no) != 1) match_no = 0;
+            clearInput();
+            displayStatistics(user->match_history, week, match_no);
+        } else {
+            printf("Invalid choice.\n");
         }
     }
 }

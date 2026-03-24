@@ -21,7 +21,9 @@ void pushMatch(MatchStack* stack, const char* opponent,
                int my_shots, int opp_shots,
                int my_assists, int opp_assists,
                int my_fouls, int opp_fouls,
-               int my_offsides, int opp_offsides) {
+               int my_offsides, int opp_offsides,
+               int my_red_cards, int opp_red_cards,
+               int my_yellow_cards, int opp_yellow_cards) {
     MatchRecord* record = (MatchRecord *) malloc(sizeof(MatchRecord));
     if (record == NULL) {
         printf("Memory allocation failed\n");
@@ -52,6 +54,10 @@ void pushMatch(MatchStack* stack, const char* opponent,
     record -> opp_fouls = opp_fouls;
     record -> my_offsides = my_offsides;
     record -> opp_offsides = opp_offsides;
+    record -> my_red_cards = my_red_cards;
+    record -> opp_red_cards = opp_red_cards;
+    record -> my_yellow_cards = my_yellow_cards;
+    record -> opp_yellow_cards = opp_yellow_cards;
 
     record -> next         = stack -> top;
 
@@ -181,10 +187,12 @@ void displayStatistics(MatchStack* stack, int week, int match_num) {
             printf("             %20s | %-20s\n", "You", curr->opponent_name);
             printf("-----------------------------------------------------------------------\n");
             printf("      Goals: %20d | %-20d\n", curr->my_goals, curr->opp_goals);
-            printf("      Shots: %20d | %-20d\n", curr->my_shots, curr->opp_shots);
+            printf("Shots on Goal: %18d | %-20d\n", curr->my_shots, curr->opp_shots);
             printf("    Assists: %20d | %-20d\n", curr->my_assists, curr->opp_assists);
             printf("      Fouls: %20d | %-20d\n", curr->my_fouls, curr->opp_fouls);
             printf("   Offsides: %20d | %-20d\n", curr->my_offsides, curr->opp_offsides);
+            printf("  Red Cards: %20d | %-20d\n", curr->my_red_cards, curr->opp_red_cards);
+            printf("Yellow Cards: %19d | %-20d\n", curr->my_yellow_cards, curr->opp_yellow_cards);
             printf("-----------------------------------------------------------------------\n");
             return;
         }
