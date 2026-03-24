@@ -635,7 +635,7 @@ static void leaderboardMenu(UserNode* user) {
         if (choice == 0) {
             break;
         } else if (choice == 1) {
-            displayLeaderboard(&g_leaderboard, -1);
+            displayLeaderboard(&g_leaderboard, user != NULL ? user->id : -1);
         } else if (choice == 2) {
             int rank = getUserRank(&g_leaderboard, user -> id);
             if (rank == -1) {
@@ -786,8 +786,27 @@ int main(void) {
             UserNode* newUser = addUser(&g_registry, name, password);
             if (newUser != NULL) {
                 initUserModules(newUser);
+                  // Provide 5 weeks of default match history for statistics display
+                  addMatchRecord(newUser, "BotAlpha", RESULT_LOSS, 0,   1);
+                  addMatchRecord(newUser, "BotBeta",  RESULT_DRAW, 250, 2);
+                  addMatchRecord(newUser, "BotGamma", RESULT_WIN,  500, 3);
+                  addMatchRecord(newUser, "BotDelta", RESULT_LOSS, 0,   4);
+                  addMatchRecord(newUser, "BotSigma", RESULT_WIN,  500, 5);
 
-
+                  // Reset leaderboard totals to keep the user effectively at 0/0/0
+                  newUser->total_wins = 0;
+                  newUser->total_losses = 0;
+                  newUser->total_draws = 0;
+                  newUser->coins = 15000;
+                  
+                  if (newUser->match_history) {
+                      newUser->match_history->total_wins = 0;
+                      newUser->match_history->total_losses = 0;
+                      newUser->match_history->total_draws = 0;
+                      newUser->match_history->total_matches = 0;
+                      newUser->match_history->week_wins = 0;
+                      newUser->match_history->week_matches = 0;
+                  }
                 addToLeaderboard(&g_leaderboard, newUser -> id,
                                    newUser -> name, newUser->total_wins, newUser->total_losses, newUser->total_draws, getWinPercentage(newUser->match_history), getWeeklyWinPercentage(newUser->match_history), newUser->level);
                 printf("Registration successful!\n");
@@ -819,7 +838,7 @@ int main(void) {
             traverseUsers(&g_registry);
 
         } else if (choice == 4) {
-            displayLeaderboard(&g_leaderboard, -1);
+              displayLeaderboard(&g_leaderboard, -1);
 
         } else {
             printf("Invalid choice.\n");

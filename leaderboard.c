@@ -171,6 +171,15 @@ void sortLeaderboard(Leaderboard* lb) {
     }
 }
 
+static int getSimulatedRank(int level, int real_rank) {
+    int base_ranks[] = {165, 125, 85, 65, 45, 25, 15, 5, 0};
+    if (level >= 0 && level <= 8) {
+        int base = base_ranks[level];
+        return (real_rank > base) ? real_rank : (base + real_rank);
+    }
+    return real_rank;
+}
+
 void displayLeaderboard(Leaderboard* lb, int current_user_id) {
     if (lb -> head == NULL) {
         printf("Leaderboard is empty.\n");
@@ -208,8 +217,9 @@ void displayLeaderboard(Leaderboard* lb, int current_user_id) {
                 win_perc = (current->wins / total_matches) * 100.0;
             }
             
+            int sim_rank = getSimulatedRank(current->level, rank);
             printf("%-5d | %-20s | %-15s | %-5d | %-6d | %-5d | %-5.1f%%\n",
-                   rank, current -> user_name,
+                   sim_rank, current -> user_name,
                    getLevelNameLB(current -> level), current -> wins, current -> losses, current->draws, win_perc);
             
             last_level = current->level;
@@ -223,7 +233,7 @@ void displayLeaderboard(Leaderboard* lb, int current_user_id) {
     if (current_user_node != NULL && current_user_rank > 8) {
         printf("--------------------------------------------------------------------------------\n");
         for (int j = 0; j < 5; j++) {
-            printf("%-5s | %-20s | %-15s | %-5s | %-6s | %-5s | %-5s\n", ".", ".", ".", ".", ".", ".", ".");
+            printf("%-5s | %-20s | %-15s | %-5s | %-6s | %-5s | %-5s\n", "", "", "", "", "", "", "");
         }
         printf("--------------------------------------------------------------------------------\n");
         float total_matches = current_user_node->wins + current_user_node->losses + current_user_node->draws;
@@ -231,8 +241,9 @@ void displayLeaderboard(Leaderboard* lb, int current_user_id) {
         if (total_matches > 0) {
             win_perc = (current_user_node->wins / total_matches) * 100.0;
         }
+        int sim_user_rank = getSimulatedRank(current_user_node->level, current_user_rank);
         printf("%-5d | %-20s | %-15s | %-5d | %-6d | %-5d | %-5.1f%%\n",
-               current_user_rank, current_user_node -> user_name,
+               sim_user_rank, current_user_node -> user_name,
                getLevelNameLB(current_user_node -> level), current_user_node -> wins, current_user_node -> losses, current_user_node->draws, win_perc);
     }
     
