@@ -821,7 +821,6 @@ int main(void) {
         printf("1. Register\n");
         printf("2. Login\n");
         printf("3. View All Users\n");
-        printf("4. View Leaderboard\n");
         printf("0. Exit\n");
         printf("Choice: ");
         if (scanf("%d", &choice) != 1) { choice = 0; clearInput(); }
@@ -902,9 +901,6 @@ int main(void) {
 
         } else if (choice == 3) {
             traverseUsers(&g_registry);
-
-        } else if (choice == 4) {
-              displayLeaderboard(&g_leaderboard, -1);
 
         } else {
             printf("Invalid choice.\n");
