@@ -413,8 +413,11 @@ static void inventoryMenu(UserNode* user) {
             }
 
             displayAllUserCards(user->squad, user->inventory);
-            printf("Enter player name to sell: ");
+            printf("Enter player name to sell (or '0' to go back): ");
             readLine(input, sizeof(input));
+            if (strcmp(input, "0") == 0) {
+                continue;
+            }
 
             InventoryNode* found = searchInventoryByName(user -> inventory, input);
             if (found == NULL) {
@@ -483,10 +486,16 @@ static void squadMenu(UserNode* user) {
             autoSelectBestSquad(user -> squad, user -> inventory);
         } else if (choice == 3) {
             displayAllUserCards(user -> squad, user -> inventory);
-            printf("Enter first player name to swap: ");
+            printf("Enter first player name to swap (or '0' to go back): ");
             readLine(existing, sizeof(existing));
-            printf("Enter second player name to swap: ");
+            if (strcmp(existing, "0") == 0) {
+                continue;
+            }
+            printf("Enter second player name to swap (or '0' to go back): ");
             readLine(new_name, sizeof(new_name));
+            if (strcmp(new_name, "0") == 0) {
+                continue;
+            }
             swapPlayerCards(user -> squad, user -> inventory, existing, new_name);
         } else {
             printf("Invalid choice.\n");
@@ -550,8 +559,11 @@ static void marketplaceMenu(UserNode* user) {
                     printf("No players matching the above criteria found\n");
                     continue;
                 }
-                printf("Enter Player Name to purchase: ");
+                printf("Enter Player Name to purchase (or '0' to go back): ");
                 readLine(input, sizeof(input));
+                if (strcmp(input, "0") == 0) {
+                    continue;
+                }
                 printf("Enter Player Rating: ");
                 if (scanf("%d", &target_rating) != 1) { target_rating = 0; clearInput(); }
                 clearInput();
