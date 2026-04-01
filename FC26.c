@@ -713,6 +713,19 @@ typedef struct TempCard {
     int squad_slot;
 } TempCard;
 
+// Insertion sort for TempCard using a comparison function
+void insertionSortTempCard(TempCard* arr, int n, int (*cmp)(const void*, const void*)) {
+    for (int i = 1; i < n; i++) {
+        TempCard key = arr[i];
+        int j = i - 1;
+        while (j >= 0 && cmp(&arr[j], &key) > 0) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
 int compareCards(const void* a, const void* b) {
     TempCard* c1 = (TempCard*)a;
     TempCard* c2 = (TempCard*)b;
@@ -775,11 +788,11 @@ void displayAllUserCards(Squad* squad, PlayerInventory* inv) {
     }
     
     // Lineup gets ordered by position FW -> MF -> DF -> GK
-    qsort(cards, squad_count, sizeof(TempCard), compareCards);
-    
+    insertionSortTempCard(cards, squad_count, compareCards);
+
     // Other players ordered strictly by rating descending
     if (count > squad_count) {
-        qsort(cards + squad_count, count - squad_count, sizeof(TempCard), compareCardsRating);
+        insertionSortTempCard(cards + squad_count, count - squad_count, compareCardsRating);
     }
     
     printf("\n=== All Player Cards ===\n");
